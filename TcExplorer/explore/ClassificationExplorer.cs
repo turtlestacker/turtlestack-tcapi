@@ -1,15 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
-using Teamcenter.Services.Strong.Classification;
 using Teamcenter.Soa.Client;
+using Teamcenter.Soa.Client.Model;
 using TcExplorer.Model;
 
-using ClassAttr = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
-using ChildDef  = Teamcenter.Services.Strong.Classification._2007_01.Classification.ChildDef;
-using GetChildrenResponse          = Teamcenter.Services.Strong.Classification._2007_01.Classification.GetChildrenResponse;
-using GetAttributesForClassesResponse = Teamcenter.Services.Strong.Classification._2007_01.Classification.GetAttributesForClassesResponse;
+using Cls0ClassSvc     = Cls0.Services.Strong.Classificationcore.ClassificationService;
+using Cls0InputInfo    = Cls0.Services.Strong.Classificationcore._2013_05.Classification.GetHierarchyNodeChildrenInputInfo;
+using Cls0Filter       = Cls0.Services.Strong.Classificationcore._2013_05.Classification.FilterExpression;
+using Cls0NodeDetails  = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
+using Cls0HierarchyNode = Teamcenter.Soa.Client.Model.Strong.Cls0HierarchyNode;
 
 namespace TcExplorer.Explore
 {
@@ -23,18 +23,29 @@ namespace TcExplorer.Explore
         }
 
         /// <summary>
-        /// Builds the full classification hierarchy.
+        /// Builds the classification hierarchy using the Cls0 service.
+        /// GetTopLevelNodes() requires no root class ID — it works regardless
+        /// of whether the TC instance uses ICS or Cls0-based classification.
         /// Returns an empty list (never throws) if unavailable.
-        /// Root classes are retrieved by passing "" to GetChildren — the standard
-        /// ICS root ID in Teamcenter. If your installation uses a different root
-        /// class ID, update the GetChildClassNodes call below.
         /// </summary>
         public List<ClassNode> BuildHierarchy()
         {
             try
             {
-                ClassificationService service = ClassificationService.getService(_connection);
-                return GetChildClassNodes(service, "");
+                // Register Cls0 strong model types with the model manager
+                // so that Cls0HierarchyNode objects are correctly instantiated
+                Teamcenter.Soa.Client.Model.StrongObjectFactoryClassification.Init();
+
+                Cls0ClassSvc service = Cls0ClassSvc.getService(_connection);
+
+                var topResp = service.GetTopLevelNodes();
+                if (topResp == null || topResp.TopLevelNodes == null || topResp.TopLevelNodes.Length == 0)
+                {
+                    Console.WriteLine("[WARN] Classification: GetTopLevelNodes returned no nodes.");
+                    return new List<ClassNode>();
+                }
+
+                return WalkNodes(service, topResp.TopLevelNodes);
             }
             catch (Exception e)
             {
@@ -43,99 +54,73 @@ namespace TcExplorer.Explore
             }
         }
 
-        private List<ClassNode> GetChildClassNodes(ClassificationService service, string parentId)
+        private List<ClassNode> WalkNodes(Cls0ClassSvc service, Cls0HierarchyNode[] nodes)
         {
-            var nodes = new List<ClassNode>();
+            var result = new List<ClassNode>();
+            if (nodes == null || nodes.Length == 0)
+                return result;
 
-            GetChildrenResponse resp = service.GetChildren(new[] { parentId });
-            if (resp == null || resp.Children == null)
-                return nodes;
+            // Batch-load details for all sibling nodes in one call
+            var detailsResp = service.GetHierarchyNodeDetails(nodes);
+            if (detailsResp == null || detailsResp.NodeDetails == null)
+                return result;
 
-            // Children hashtable: key = parentId, value = ChildDef[]
-            if (!resp.Children.Contains(parentId))
-                return nodes;
-
-            ChildDef[] children = resp.Children[parentId] as ChildDef[];
-            if (children == null)
-                return nodes;
-
-            foreach (ChildDef child in children)
+            foreach (Cls0HierarchyNode node in nodes)
             {
-                var node = new ClassNode
+                // Cls0HierarchyNode inherits Uid from ModelObject
+                string uid = ((ModelObject)node).Uid;
+
+                // NodeDetails hashtable: key = node UID, value = Cls0NodeDetails
+                Cls0NodeDetails details = detailsResp.NodeDetails[uid] as Cls0NodeDetails;
+                if (details == null)
+                    continue;
+
+                var classNode = new ClassNode
                 {
-                    Id   = child.Id,
-                    Name = string.IsNullOrEmpty(child.Name) ? child.Id : child.Name
+                    Id   = details.NodeId,
+                    Name = string.IsNullOrEmpty(details.NodeName) ? details.NodeId : details.NodeName
                 };
 
-                try
+                if (!details.IsLeafNode)
                 {
-                    node.Attributes = GetAttributes(service, child.Id);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("[WARN] Could not load attributes for class " + child.Id + ": " + e.Message);
-                }
-
-                try
-                {
-                    if (child.ChildCount > 0)
-                        node.Children = GetChildClassNodes(service, child.Id);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("[WARN] Could not load children for class " + child.Id + ": " + e.Message);
+                    try
+                    {
+                        classNode.Children = GetChildren(service, node);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("[WARN] Could not load children for " + details.NodeId + ": " + e.Message);
+                    }
                 }
 
-                nodes.Add(node);
-            }
-
-            return nodes;
-        }
-
-        private static List<ClassAttribute> GetAttributes(ClassificationService service, string classId)
-        {
-            var result = new List<ClassAttribute>();
-
-            GetAttributesForClassesResponse resp = service.GetAttributesForClasses(new[] { classId });
-            if (resp == null || resp.Attributes == null)
-                return result;
-
-            // Attributes hashtable: key = classId, value = ClassAttribute[]
-            if (!resp.Attributes.Contains(classId))
-                return result;
-
-            ClassAttr[] attrs = resp.Attributes[classId] as ClassAttr[];
-            if (attrs == null)
-                return result;
-
-            foreach (ClassAttr attr in attrs)
-            {
-                result.Add(new ClassAttribute
-                {
-                    Id       = attr.Id.ToString(),
-                    Name     = attr.Name,
-                    DataType = FormatTypeToString(attr.Format.FormatType),
-                    Unit     = attr.UnitName ?? ""
-                });
+                result.Add(classNode);
             }
 
             return result;
         }
 
-        // ICS FormatType integer codes (from TC classification internals)
-        private static string FormatTypeToString(int formatType)
+        private List<ClassNode> GetChildren(Cls0ClassSvc service, Cls0HierarchyNode parentNode)
         {
-            switch (formatType)
+            var input = new Cls0InputInfo
             {
-                case 1:  return "String";
-                case 2:  return "Integer";
-                case 3:  return "Double";
-                case 4:  return "Date";
-                case 5:  return "Logical";
-                case 6:  return "Reference";
-                case 8:  return "ExternalReference";
-                default: return "Unknown(" + formatType + ")";
-            }
+                Node                  = parentNode,
+                Recursive             = false,
+                Filters               = new Cls0Filter[0],
+                ExtendedInfoRequested = new string[0]
+            };
+
+            var childResp = service.GetHierarchyNodeChildren(new[] { input });
+            if (childResp == null || childResp.Children == null)
+                return new List<ClassNode>();
+
+            string parentUid = ((ModelObject)parentNode).Uid;
+
+            // Children hashtable: key = parent node UID, value = Cls0HierarchyNode[]
+            Cls0HierarchyNode[] children = childResp.Children[parentUid] as Cls0HierarchyNode[];
+            if (children == null)
+                return new List<ClassNode>();
+
+            return WalkNodes(service, children);
         }
     }
 }

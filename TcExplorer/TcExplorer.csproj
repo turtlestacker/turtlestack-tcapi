@@ -90,6 +90,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaStrongModelClassificationCore.dll</HintPath>
     </Reference>
+    <Reference Include="TcSoaStrongModelPartition, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaStrongModelPartition.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaStrongModelModelCore, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaStrongModelModelCore.dll</HintPath>
+    </Reference>
     <Reference Include="Cls0SoaClassificationCoreStrong, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\soa_client_zip_examples\netstandard2.0\Cls0SoaClassificationCoreStrong.dll</HintPath>
