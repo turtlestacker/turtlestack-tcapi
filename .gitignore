@@ -1,0 +1,29 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docview
+
+# dotnet CLI
+project.lock.json
+
+# Test / coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+packages/
+
+# Logs
+*.log
+
+# TcExplorer runtime output
+tc_explorer_output.json
