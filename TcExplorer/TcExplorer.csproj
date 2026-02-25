@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TcExplorer</RootNamespace>
+    <AssemblyName>TcExplorer</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="netstandard" />
+    <Reference Include="System.Web.Extensions" />
+
+    <Reference Include="TcLogging, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcLogging.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaClient, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaClient.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaCommon, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaCoreStrong, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaCoreStrong.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaStrongModel, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaStrongModel.dll</HintPath>
+    </Reference>
+    <Reference Include="TcServerNetBindingInterface, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcServerNetBindingInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="TcServerNetBinding, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcServerNetBinding.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaClassificationStrong, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaClassificationStrong.dll</HintPath>
+    </Reference>
+    <Reference Include="TcSoaStrongModelClassificationCore, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\TcSoaStrongModelClassificationCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Cls0SoaClassificationCoreStrong, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\Cls0SoaClassificationCoreStrong.dll</HintPath>
+    </Reference>
+    <Reference Include="Cla0SoaClassificationCommonStrong, Culture=neutral, PublicKeyToken=0edd5b5ddd601444, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\netstandard2.0\Cla0SoaClassificationCommonStrong.dll</HintPath>
+    </Reference>
+    <Reference Include="FCCNetClientProxy, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\soa_client_zip_examples\net48\FCCNetClientProxy.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="clientx\AppXCredentialManager.cs" />
+    <Compile Include="clientx\AppXExceptionHandler.cs" />
+    <Compile Include="clientx\AppXModelEventListener.cs" />
+    <Compile Include="clientx\AppXPartialErrorListener.cs" />
+    <Compile Include="clientx\AppXRequestListener.cs" />
+    <Compile Include="clientx\Session.cs" />
+    <Compile Include="model\ExplorerModel.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="explore\FolderExplorer.cs" />
+    <Compile Include="explore\ClassificationExplorer.cs" />
+    <Compile Include="output\ConsoleRenderer.cs" />
+    <Compile Include="output\JsonExporter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
