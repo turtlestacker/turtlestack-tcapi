@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Teamcenter.Services.Strong.Classification;
 using Teamcenter.Soa.Client;
 using TcExplorer.Model;
 
@@ -10,12 +11,14 @@ using Cls0InputInfo   = Cls0.Services.Strong.Classificationcore._2013_05.Classif
 using Cls0Filter      = Cls0.Services.Strong.Classificationcore._2013_05.Classification.FilterExpression;
 using Cls0NodeDetails = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
 using Cls0HierarchyNode = Teamcenter.Soa.Client.Model.Strong.Cls0HierarchyNode;
+using ClassAttr       = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
 
 namespace TcExplorer.Explore
 {
     public class ClassificationExplorer
     {
         private readonly Connection _connection;
+        private const int MaxDepth = 30;
 
         public ClassificationExplorer(Connection connection)
         {
@@ -28,16 +31,17 @@ namespace TcExplorer.Explore
             {
                 Teamcenter.Soa.Client.Model.StrongObjectFactoryClassification.Init();
 
-                Cls0ClassSvc service = Cls0ClassSvc.getService(_connection);
+                Cls0ClassSvc cls0Service  = Cls0ClassSvc.getService(_connection);
+                ClassificationService classicService = ClassificationService.getService(_connection);
 
-                var topResp = service.GetTopLevelNodes();
+                var topResp = cls0Service.GetTopLevelNodes();
                 if (topResp == null || topResp.TopLevelNodes == null || topResp.TopLevelNodes.Length == 0)
                 {
                     Console.WriteLine("[WARN] Classification: GetTopLevelNodes returned no nodes.");
                     return new List<ClassNode>();
                 }
 
-                return WalkNodes(service, topResp.TopLevelNodes);
+                return WalkNodes(cls0Service, classicService, topResp.TopLevelNodes, 0);
             }
             catch (Exception e)
             {
@@ -46,19 +50,17 @@ namespace TcExplorer.Explore
             }
         }
 
-        private List<ClassNode> WalkNodes(Cls0ClassSvc service, Cls0HierarchyNode[] nodes)
+        private List<ClassNode> WalkNodes(Cls0ClassSvc cls0Service, ClassificationService classicService,
+                                          Cls0HierarchyNode[] nodes, int depth)
         {
             var result = new List<ClassNode>();
-            if (nodes == null || nodes.Length == 0)
+            if (nodes == null || nodes.Length == 0 || depth > MaxDepth)
                 return result;
 
-            var detailsResp = service.GetHierarchyNodeDetails(nodes);
+            var detailsResp = cls0Service.GetHierarchyNodeDetails(nodes);
             if (detailsResp == null || detailsResp.NodeDetails == null)
                 return result;
 
-            // Iterate the hashtable directly — key format varies by TC version.
-            // HierarchyNodeDetails.NodeToUpdate gives back the original Cls0HierarchyNode,
-            // so we never need to look up by UID.
             foreach (DictionaryEntry entry in detailsResp.NodeDetails)
             {
                 Cls0NodeDetails details = entry.Value as Cls0NodeDetails;
@@ -71,11 +73,28 @@ namespace TcExplorer.Explore
                     Name = string.IsNullOrEmpty(details.NodeName) ? details.NodeId : details.NodeName
                 };
 
-                if (!details.IsLeafNode && details.NodeToUpdate != null)
+                // Load attributes via classic service using the NodeId as the ICS class ID
+                if (!string.IsNullOrEmpty(details.NodeId))
                 {
                     try
                     {
-                        classNode.Children = GetChildren(service, details.NodeToUpdate);
+                        classNode.Attributes = GetAttributes(classicService, details.NodeId);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("[WARN] Could not load attributes for " + classNode.Id + ": " + e.Message);
+                    }
+                }
+
+                // Always recurse — do NOT rely on IsLeafNode.
+                // In Cls0, IsLeafNode means "objects can be classified here"
+                // not "this node has no children in the hierarchy".
+                if (details.NodeToUpdate != null)
+                {
+                    try
+                    {
+                        classNode.Children = GetChildren(cls0Service, classicService,
+                                                         details.NodeToUpdate, depth + 1);
                     }
                     catch (Exception e)
                     {
@@ -89,7 +108,8 @@ namespace TcExplorer.Explore
             return result;
         }
 
-        private List<ClassNode> GetChildren(Cls0ClassSvc service, Cls0HierarchyNode parentNode)
+        private List<ClassNode> GetChildren(Cls0ClassSvc cls0Service, ClassificationService classicService,
+                                            Cls0HierarchyNode parentNode, int depth)
         {
             var input = new Cls0InputInfo
             {
@@ -99,13 +119,10 @@ namespace TcExplorer.Explore
                 ExtendedInfoRequested = new string[0]
             };
 
-            var childResp = service.GetHierarchyNodeChildren(new[] { input });
+            var childResp = cls0Service.GetHierarchyNodeChildren(new[] { input });
             if (childResp == null || childResp.Children == null || childResp.Children.Count == 0)
                 return new List<ClassNode>();
 
-            // Collect all child nodes from all hashtable entries.
-            // Since we pass one parent at a time there is only one entry,
-            // but iterating is safer than assuming the key format.
             var allChildren = new List<Cls0HierarchyNode>();
             foreach (DictionaryEntry entry in childResp.Children)
             {
@@ -114,7 +131,53 @@ namespace TcExplorer.Explore
                     allChildren.AddRange(children);
             }
 
-            return WalkNodes(service, allChildren.ToArray());
+            return WalkNodes(cls0Service, classicService, allChildren.ToArray(), depth);
+        }
+
+        private static List<ClassAttribute> GetAttributes(ClassificationService service, string classId)
+        {
+            var result = new List<ClassAttribute>();
+
+            var resp = service.GetAttributesForClasses(new[] { classId });
+            if (resp == null || resp.Attributes == null)
+                return result;
+
+            // Hashtable: key = classId, value = ClassAttribute[]
+            // Iterate to avoid key-format assumptions
+            foreach (DictionaryEntry entry in resp.Attributes)
+            {
+                ClassAttr[] attrs = entry.Value as ClassAttr[];
+                if (attrs == null)
+                    continue;
+
+                foreach (ClassAttr attr in attrs)
+                {
+                    result.Add(new ClassAttribute
+                    {
+                        Id       = attr.Id.ToString(),
+                        Name     = attr.Name,
+                        DataType = FormatTypeToString(attr.Format.FormatType),
+                        Unit     = attr.UnitName ?? ""
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        private static string FormatTypeToString(int formatType)
+        {
+            switch (formatType)
+            {
+                case 1:  return "String";
+                case 2:  return "Integer";
+                case 3:  return "Double";
+                case 4:  return "Date";
+                case 5:  return "Logical";
+                case 6:  return "Reference";
+                case 8:  return "ExternalReference";
+                default: return "Unknown(" + formatType + ")";
+            }
         }
     }
 }
