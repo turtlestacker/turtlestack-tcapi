@@ -42,14 +42,15 @@ namespace TcExplorer.Explore
 
         private FolderNode WalkFolder(Folder folder)
         {
+            // Load the folder's own name/type and its contents in one call
+            WorkspaceObject[] contents = LoadContents(folder);
+
             FolderNode node = new FolderNode
             {
                 Name = GetStringProperty(folder, "object_string"),
                 Type = GetStringProperty(folder, "object_type"),
                 Uid  = folder.Uid
             };
-
-            WorkspaceObject[] contents = LoadContents(folder);
             if (contents == null || contents.Length == 0)
                 return node;
 
@@ -80,7 +81,7 @@ namespace TcExplorer.Explore
         {
             try
             {
-                _dmService.GetProperties(new ModelObject[] { folder }, new[] { "contents" });
+                _dmService.GetProperties(new ModelObject[] { folder }, new[] { "contents", "object_string", "object_type" });
                 return folder.Contents;
             }
             catch (NotLoadedException e)

@@ -101,7 +101,7 @@ namespace TcExplorer.Output
 
         private static string Indent(int level, string unit)
         {
-            var sb = new StringBuilder(level * unit.Length);
+            var sb = new StringBuilder();
             for (int i = 0; i < level; i++) sb.Append(unit);
             return sb.ToString();
         }
