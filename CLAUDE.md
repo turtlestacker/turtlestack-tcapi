@@ -137,3 +137,65 @@ The `ProductConfigurator` VB.NET sample shows an alternative pattern where crede
 ## API Documentation
 
 Full service reference is available on the [Siemens Support Center](https://support.sw.siemens.com/en-US): Products → Teamcenter → Documentation tab → search "Teamcenter Services Reference".
+
+---
+
+## TcExplorer — Custom Console App
+
+`TcExplorer/` is a .NET Framework 4.8 console app that connects to the RR-SMR Teamcenter server and exports:
+1. The full recursive home-folder tree (all sub-folders and items)
+2. The Cls0 classification hierarchy with class attribute definitions
+
+**Build:** `dotnet build TcExplorer/TcExplorer.csproj -c Debug`
+**Run:** `TcExplorer.exe -host https://tcweb03.dev.rolls-royce-smr.com:3000/tc`
+**Output:** console tree (box-drawing chars) + `tc_explorer_output.json` (or `-out path.json`)
+
+`bin/Debug/` is intentionally committed to git so the exe can be deployed by `git pull` without needing VS or dotnet SDK on the target machine.
+
+### TcExplorer Structure
+
+```
+TcExplorer/
+├── TcExplorer.csproj          .NET 4.8 Exe, x64+AnyCPU configs
+├── Program.cs                 Entry point; args: -host -sso -appID -out
+├── clientx/                   Verbatim copy from HelloTeamcenter/clientx/ (Teamcenter.ClientX ns)
+├── model/ExplorerModel.cs     POCOs: FolderNode, ItemInfo, ClassNode, ClassAttribute, ExplorerResult
+├── explore/
+│   ├── FolderExplorer.cs      DataManagementService.GetProperties recursive walk
+│   └── ClassificationExplorer.cs  Cls0 hierarchy + classic Classification attributes
+└── output/
+    ├── ConsoleRenderer.cs     UTF-8 box-drawing tree
+    └── JsonExporter.cs        JavaScriptSerializer + PrettyPrint → UTF-8 file
+```
+
+### Classification API — Confirmed Patterns
+
+The Siemens docs portal requires login; API was discovered via PowerShell reflection on the DLLs.
+
+**Two services are used together:**
+- `Cls0.Services.Strong.Classificationcore.ClassificationService` — hierarchy (top nodes, children)
+- `Teamcenter.Services.Strong.Classification.ClassificationService` — attribute definitions
+
+**Required DLLs** (beyond core SDK): `TcSoaClassificationStrong`, `Cls0SoaClassificationCoreStrong`, `Cla0SoaClassificationCommonStrong`, `TcSoaStrongModelClassificationCore`, `TcSoaStrongModelPartition`, `TcSoaStrongModelModelCore`
+
+**Call `StrongObjectFactoryClassification.Init()` before any Cls0 model types are used.**
+
+**Confirmed hashtable structures (discovered at runtime):**
+```
+GetHierarchyNodeDetails().NodeDetails  → key: Cls0HierarchyNode,  value: HierarchyNodeDetails[]
+GetHierarchyNodeChildren().Children    → key: Cls0GroupNode,       value: HierarchyNodeDetails[]
+GetAttributesForClasses().Attributes   → key: string (classId),    value: ClassAttribute[]
+```
+
+**Key gotcha:** `HierarchyNodeDetails.IsLeafNode` means "objects can be classified here", NOT "no children in the hierarchy". Always recurse regardless of this flag; children simply return empty when a node truly has none.
+
+**Recursion pattern:** `GetTopLevelNodes()` → `GetHierarchyNodeDetails()` → iterate `HierarchyNodeDetails[]` → for each, call `GetHierarchyNodeChildren(d.NodeToUpdate)` → repeat. `d.NodeToUpdate` is the `Cls0HierarchyNode` needed as input to `GetHierarchyNodeChildren`.
+
+### Known Fixes Applied
+
+| Problem | Fix |
+|---|---|
+| `dotnet build` fails (AnyCPU platform not found) | Added `Debug\|AnyCPU` and `Release\|AnyCPU` PropertyGroups to .csproj |
+| Home folder shows `(unknown)` for name/type | `LoadContents` now fetches `object_string` + `object_type` alongside `contents` in the same `GetProperties` call, before the node is constructed |
+| JSON export crashes (`capacity must be > zero`) | `Indent()` helper changed from `new StringBuilder(level * unit.Length)` to `new StringBuilder()` — capacity=0 throws on .NET Framework 4.8 |
+| Classification children always empty | `entry.Value` in Children hashtable is `HierarchyNodeDetails[]` not `Cls0HierarchyNode[]`; cast was always null |
