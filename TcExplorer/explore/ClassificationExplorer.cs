@@ -1,14 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using Teamcenter.Soa.Client;
-using Teamcenter.Soa.Client.Model;
 using TcExplorer.Model;
 
-using Cls0ClassSvc     = Cls0.Services.Strong.Classificationcore.ClassificationService;
-using Cls0InputInfo    = Cls0.Services.Strong.Classificationcore._2013_05.Classification.GetHierarchyNodeChildrenInputInfo;
-using Cls0Filter       = Cls0.Services.Strong.Classificationcore._2013_05.Classification.FilterExpression;
-using Cls0NodeDetails  = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
+using Cls0ClassSvc    = Cls0.Services.Strong.Classificationcore.ClassificationService;
+using Cls0InputInfo   = Cls0.Services.Strong.Classificationcore._2013_05.Classification.GetHierarchyNodeChildrenInputInfo;
+using Cls0Filter      = Cls0.Services.Strong.Classificationcore._2013_05.Classification.FilterExpression;
+using Cls0NodeDetails = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
 using Cls0HierarchyNode = Teamcenter.Soa.Client.Model.Strong.Cls0HierarchyNode;
 
 namespace TcExplorer.Explore
@@ -22,18 +22,10 @@ namespace TcExplorer.Explore
             _connection = connection;
         }
 
-        /// <summary>
-        /// Builds the classification hierarchy using the Cls0 service.
-        /// GetTopLevelNodes() requires no root class ID — it works regardless
-        /// of whether the TC instance uses ICS or Cls0-based classification.
-        /// Returns an empty list (never throws) if unavailable.
-        /// </summary>
         public List<ClassNode> BuildHierarchy()
         {
             try
             {
-                // Register Cls0 strong model types with the model manager
-                // so that Cls0HierarchyNode objects are correctly instantiated
                 Teamcenter.Soa.Client.Model.StrongObjectFactoryClassification.Init();
 
                 Cls0ClassSvc service = Cls0ClassSvc.getService(_connection);
@@ -60,36 +52,34 @@ namespace TcExplorer.Explore
             if (nodes == null || nodes.Length == 0)
                 return result;
 
-            // Batch-load details for all sibling nodes in one call
             var detailsResp = service.GetHierarchyNodeDetails(nodes);
             if (detailsResp == null || detailsResp.NodeDetails == null)
                 return result;
 
-            foreach (Cls0HierarchyNode node in nodes)
+            // Iterate the hashtable directly — key format varies by TC version.
+            // HierarchyNodeDetails.NodeToUpdate gives back the original Cls0HierarchyNode,
+            // so we never need to look up by UID.
+            foreach (DictionaryEntry entry in detailsResp.NodeDetails)
             {
-                // Cls0HierarchyNode inherits Uid from ModelObject
-                string uid = ((ModelObject)node).Uid;
-
-                // NodeDetails hashtable: key = node UID, value = Cls0NodeDetails
-                Cls0NodeDetails details = detailsResp.NodeDetails[uid] as Cls0NodeDetails;
+                Cls0NodeDetails details = entry.Value as Cls0NodeDetails;
                 if (details == null)
                     continue;
 
                 var classNode = new ClassNode
                 {
-                    Id   = details.NodeId,
+                    Id   = details.NodeId ?? entry.Key?.ToString() ?? "",
                     Name = string.IsNullOrEmpty(details.NodeName) ? details.NodeId : details.NodeName
                 };
 
-                if (!details.IsLeafNode)
+                if (!details.IsLeafNode && details.NodeToUpdate != null)
                 {
                     try
                     {
-                        classNode.Children = GetChildren(service, node);
+                        classNode.Children = GetChildren(service, details.NodeToUpdate);
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("[WARN] Could not load children for " + details.NodeId + ": " + e.Message);
+                        Console.WriteLine("[WARN] Could not load children for " + classNode.Id + ": " + e.Message);
                     }
                 }
 
@@ -110,17 +100,21 @@ namespace TcExplorer.Explore
             };
 
             var childResp = service.GetHierarchyNodeChildren(new[] { input });
-            if (childResp == null || childResp.Children == null)
+            if (childResp == null || childResp.Children == null || childResp.Children.Count == 0)
                 return new List<ClassNode>();
 
-            string parentUid = ((ModelObject)parentNode).Uid;
+            // Collect all child nodes from all hashtable entries.
+            // Since we pass one parent at a time there is only one entry,
+            // but iterating is safer than assuming the key format.
+            var allChildren = new List<Cls0HierarchyNode>();
+            foreach (DictionaryEntry entry in childResp.Children)
+            {
+                Cls0HierarchyNode[] children = entry.Value as Cls0HierarchyNode[];
+                if (children != null)
+                    allChildren.AddRange(children);
+            }
 
-            // Children hashtable: key = parent node UID, value = Cls0HierarchyNode[]
-            Cls0HierarchyNode[] children = childResp.Children[parentUid] as Cls0HierarchyNode[];
-            if (children == null)
-                return new List<ClassNode>();
-
-            return WalkNodes(service, children);
+            return WalkNodes(service, allChildren.ToArray());
         }
     }
 }
