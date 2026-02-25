@@ -1,6 +1,8 @@
 # Build output
-bin/
 obj/
+bin/x64/
+bin/Release/
+# bin/Debug/ is intentionally tracked so TcExplorer.exe can be cloned without VS
 
 # Visual Studio
 .vs/
