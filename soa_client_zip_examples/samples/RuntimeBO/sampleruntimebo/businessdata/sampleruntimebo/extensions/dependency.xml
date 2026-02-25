@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Copyright 2022 Siemens Digital Industries Software
+==================================================
+Copyright 2021.
+Siemens Product Lifecycle Management Software Inc.
+All Rights Reserved.
+==================================================
+Copyright 2022 Siemens Digital Industries Software
+--><TcBusinessDataIncludes currentTemplateVersion="2312.0_0" displayName="sampleruntimebo" enableOpsDataDeploy="true" guid="5F9F2273FF8609281C8CF6DF79FFDF88" isDescriptionMandatory="false" name="sampleruntimebo" optional="true" prefixes="SRB9" teamcenterTemplate="false">
+    <include file="foundation_template.xml"/>
+</TcBusinessDataIncludes>

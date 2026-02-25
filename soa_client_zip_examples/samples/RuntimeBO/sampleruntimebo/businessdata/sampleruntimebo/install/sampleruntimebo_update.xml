@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+Copyright 2022 Siemens Digital Industries Software
+================================================================================
+Copyright 2023.
+Siemens Digital Industries Software.
+All Rights Reserved.
+================================================================================
+Copyright 2022 Siemens Digital Industries Software
+-->
+
+<update_default_script>
+    <section name="pre-schema-add" description="Use this section to add any commands that should migrate data before the BMIDE tools have added the new classes and attributes."/>
+    <section name="post-schema-add" description="Use this section to add any commands that should migrate data after the BMIDE tools have added the new classes and attributes, but before the BMIDE tools modify or delete any existing classes and attributes."/>
+    <section name="post-schema-change" description="Use this section to add any commands that should migrate data after the BMIDE tools have changed any existing classes and attributes, but before the BMIDE tools deletes any existing classes and attributes and before the BMIDE adds, changes, or deletes non-schema objects. Use this section if your solution needs to install any workflow templates, transfer modes, or any other data that must be installed before the BMIDE tools install Business Objects (Items, Datasets, Forms, Item Element, App Interface, IntDataCapture), Business Rules, LOVs, Change Objects, Validation Data, Tools. The creation of types for pre-tc2007 releases should be added in this section."/>
+    <section name="pre-non-schema-add" description="Add the utilites that install new Transfer modes or Process templates in this section."/>
+    <section name="post-non-schema-add" description="Use this section to add any commands that should migrate data after the BMIDE tools have added the Business Objects, Business Rules, LOVs, Change objects, Validation Data, Tools, etc."/>
+    <section name="post-non-schema-change" description="Use this section to add any commands that should migrate data after the BMIDE tools have changed any existing Business Objects, Business Rules, LOVs, Change objects, Validation Data, Tools, etc."/>
+    <section name="post-non-schema-delete" description="Use this section to add any commands that should migrate data after the BMIDE tools have deleted any existing Business Objects, Business Rules, LOVs, Change objects, Validation Data, Tools, etc."/>
+    <section name="post-schema-delete" description="Use this section to add any commands that should migrate data after the the BMIDE tools have added/changed/deleted Classes/Attributes Business Objects, Business Rules, LOVs, Change objects, Validation Data, Tools, etc."/>
+</update_default_script>
