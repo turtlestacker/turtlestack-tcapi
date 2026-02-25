@@ -1,28 +1,15 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
+using Teamcenter.Services.Strong.Classification;
 using Teamcenter.Soa.Client;
 using TcExplorer.Model;
 
-// Classification API notes (Phase 2):
-// -----------------------------------------------------------
-// To verify these APIs, open VS 2019 Object Browser and add:
-//   TcSoaClassificationStrong.dll
-//   Cls0SoaClassificationCoreStrong.dll
-//   Cla0SoaClassificationCommonStrong.dll
-//   TcSoaStrongModelClassificationCore.dll
-//
-// Expected service class names (VERIFY_API — confirm in Object Browser):
-//   Teamcenter.Services.Strong.Classification.ClassificationService
-//   Cls0.Services.Strong.ClassificationCore.Cls0ClassificationCoreService
-//
-// Uncomment the relevant using directives and method bodies below once
-// the exact namespaces and method signatures are confirmed.
-// -----------------------------------------------------------
-
-// VERIFY_API: Uncomment once namespace is confirmed:
-// using Teamcenter.Services.Strong.Classification;
-// using Cls0.Services.Strong.ClassificationCore;
+using ClassAttr = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
+using ChildDef  = Teamcenter.Services.Strong.Classification._2007_01.Classification.ChildDef;
+using GetChildrenResponse          = Teamcenter.Services.Strong.Classification._2007_01.Classification.GetChildrenResponse;
+using GetAttributesForClassesResponse = Teamcenter.Services.Strong.Classification._2007_01.Classification.GetAttributesForClassesResponse;
 
 namespace TcExplorer.Explore
 {
@@ -36,107 +23,119 @@ namespace TcExplorer.Explore
         }
 
         /// <summary>
-        /// Builds the full classification hierarchy from the TC server.
-        /// Returns an empty list (never throws) if the classification API is
-        /// unavailable or not yet verified.
+        /// Builds the full classification hierarchy.
+        /// Returns an empty list (never throws) if unavailable.
+        /// Root classes are retrieved by passing "" to GetChildren — the standard
+        /// ICS root ID in Teamcenter. If your installation uses a different root
+        /// class ID, update the GetChildClassNodes call below.
         /// </summary>
         public List<ClassNode> BuildHierarchy()
         {
             try
             {
-                return GetRootClassNodes();
+                ClassificationService service = ClassificationService.getService(_connection);
+                return GetChildClassNodes(service, "");
             }
             catch (Exception e)
             {
                 Console.WriteLine("[WARN] Classification hierarchy unavailable: " + e.Message);
-                Console.WriteLine("       Classification API calls are not yet verified (see ClassificationExplorer.cs).");
                 return new List<ClassNode>();
             }
         }
 
-        private List<ClassNode> GetRootClassNodes()
+        private List<ClassNode> GetChildClassNodes(ClassificationService service, string parentId)
         {
-            // VERIFY_API: Get service stub — confirm class name in Object Browser
-            // var service = ClassificationService.getService(_connection);
+            var nodes = new List<ClassNode>();
 
-            // VERIFY_API: Call the operation that returns root-level class definitions.
-            // Typical pattern (exact method name TBD):
-            //   var response = service.GetRootClasses(new GetRootClassesInput { ... });
-            //   foreach (var classDef in response.ClassDefinitions)
-            //       roots.Add(BuildClassNode(service, classDef));
+            GetChildrenResponse resp = service.GetChildren(new[] { parentId });
+            if (resp == null || resp.Children == null)
+                return nodes;
 
-            // Returning empty until VERIFY_API blocks are resolved.
-            return new List<ClassNode>();
+            // Children hashtable: key = parentId, value = ChildDef[]
+            if (!resp.Children.Contains(parentId))
+                return nodes;
+
+            ChildDef[] children = resp.Children[parentId] as ChildDef[];
+            if (children == null)
+                return nodes;
+
+            foreach (ChildDef child in children)
+            {
+                var node = new ClassNode
+                {
+                    Id   = child.Id,
+                    Name = string.IsNullOrEmpty(child.Name) ? child.Id : child.Name
+                };
+
+                try
+                {
+                    node.Attributes = GetAttributes(service, child.Id);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("[WARN] Could not load attributes for class " + child.Id + ": " + e.Message);
+                }
+
+                try
+                {
+                    if (child.ChildCount > 0)
+                        node.Children = GetChildClassNodes(service, child.Id);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("[WARN] Could not load children for class " + child.Id + ": " + e.Message);
+                }
+
+                nodes.Add(node);
+            }
+
+            return nodes;
         }
 
-        private ClassNode BuildClassNode(object service, object classDef)
+        private static List<ClassAttribute> GetAttributes(ClassificationService service, string classId)
         {
-            // VERIFY_API: Map classDef fields to ClassNode.
-            // Expected fields on classDef (confirm in Object Browser):
-            //   classDef.ClassId    → ClassNode.Id
-            //   classDef.ClassName  → ClassNode.Name
-            //
-            // var node = new ClassNode
-            // {
-            //     Id   = classDef.ClassId,
-            //     Name = classDef.ClassName
-            // };
+            var result = new List<ClassAttribute>();
 
-            var node = new ClassNode { Id = "", Name = "" };
+            GetAttributesForClassesResponse resp = service.GetAttributesForClasses(new[] { classId });
+            if (resp == null || resp.Attributes == null)
+                return result;
 
-            try
-            {
-                node.Attributes = GetAttributes(service, node.Id);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("[WARN] Could not load attributes for class " + node.Id + ": " + e.Message);
-            }
+            // Attributes hashtable: key = classId, value = ClassAttribute[]
+            if (!resp.Attributes.Contains(classId))
+                return result;
 
-            try
+            ClassAttr[] attrs = resp.Attributes[classId] as ClassAttr[];
+            if (attrs == null)
+                return result;
+
+            foreach (ClassAttr attr in attrs)
             {
-                node.Children = GetChildClassNodes(service, node.Id);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("[WARN] Could not load children for class " + node.Id + ": " + e.Message);
+                result.Add(new ClassAttribute
+                {
+                    Id       = attr.Id.ToString(),
+                    Name     = attr.Name,
+                    DataType = FormatTypeToString(attr.Format.FormatType),
+                    Unit     = attr.UnitName ?? ""
+                });
             }
 
-            return node;
+            return result;
         }
 
-        private List<ClassNode> GetChildClassNodes(object service, string parentId)
+        // ICS FormatType integer codes (from TC classification internals)
+        private static string FormatTypeToString(int formatType)
         {
-            // VERIFY_API: Call operation to get children of parentId.
-            // Typical pattern:
-            //   var response = service.GetChildClasses(new GetChildClassesInput { ParentId = parentId });
-            //   var children = new List<ClassNode>();
-            //   foreach (var child in response.ClassDefinitions)
-            //       children.Add(BuildClassNode(service, child));
-            //   return children;
-
-            return new List<ClassNode>();
-        }
-
-        private List<ClassAttribute> GetAttributes(object service, string classId)
-        {
-            // VERIFY_API: Call operation to get attribute definitions for classId.
-            // Typical pattern:
-            //   var response = service.GetClassAttributes(new GetClassAttributesInput { ClassId = classId });
-            //   var attrs = new List<ClassAttribute>();
-            //   foreach (var attrDef in response.AttributeDefinitions)
-            //   {
-            //       attrs.Add(new ClassAttribute
-            //       {
-            //           Id       = attrDef.AttributeId,
-            //           Name     = attrDef.AttributeName,
-            //           DataType = attrDef.DataType.ToString(),
-            //           Unit     = attrDef.Unit ?? ""
-            //       });
-            //   }
-            //   return attrs;
-
-            return new List<ClassAttribute>();
+            switch (formatType)
+            {
+                case 1:  return "String";
+                case 2:  return "Integer";
+                case 3:  return "Double";
+                case 4:  return "Date";
+                case 5:  return "Logical";
+                case 6:  return "Reference";
+                case 8:  return "ExternalReference";
+                default: return "Unknown(" + formatType + ")";
+            }
         }
     }
 }
