@@ -123,6 +123,17 @@ namespace TcExplorer.Explore
             if (childResp == null || childResp.Children == null || childResp.Children.Count == 0)
                 return new List<ClassNode>();
 
+            // Diagnostic: show actual runtime key/value types in the Children hashtable
+            foreach (DictionaryEntry dbg in childResp.Children)
+            {
+                Console.WriteLine("[DEBUG] Children hashtable entry — key type: "
+                    + (dbg.Key?.GetType().FullName ?? "null")
+                    + "  value type: "
+                    + (dbg.Value?.GetType().FullName ?? "null"));
+                if (dbg.Value is Array arr && arr.Length > 0)
+                    Console.WriteLine("[DEBUG]   array element type: " + arr.GetValue(0)?.GetType().FullName);
+            }
+
             var allChildren = new List<Cls0HierarchyNode>();
             foreach (DictionaryEntry entry in childResp.Children)
             {
