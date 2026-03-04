@@ -73,12 +73,44 @@ namespace TcExplorer.Explore
                     }
                 }
 
-                return BuildFromDetails(cls0Service, classicSvc, topDetails, 0, nodeLimit);
+                // Sort by name for a consistent menu order
+                topDetails.Sort((a, b) => string.Compare(
+                    string.IsNullOrEmpty(a.NodeName) ? a.NodeId : a.NodeName,
+                    string.IsNullOrEmpty(b.NodeName) ? b.NodeId : b.NodeName,
+                    StringComparison.OrdinalIgnoreCase));
+
+                Cls0NodeDetails selected = PromptTopLevelMenu(topDetails);
+                if (selected == null)
+                    return new List<ClassNode>();
+
+                return BuildFromDetails(cls0Service, classicSvc, new List<Cls0NodeDetails> { selected }, 0, nodeLimit);
             }
             catch (Exception e)
             {
                 Console.WriteLine("[WARN] Classification hierarchy unavailable: " + e.Message);
                 return new List<ClassNode>();
+            }
+        }
+
+        private static Cls0NodeDetails PromptTopLevelMenu(List<Cls0NodeDetails> nodes)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Classification top-level nodes:");
+            Console.WriteLine(new string('─', 60));
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                string label = string.IsNullOrEmpty(nodes[i].NodeName) ? nodes[i].NodeId : nodes[i].NodeName;
+                Console.WriteLine($"  {i + 1,3}.  {label}  [{nodes[i].NodeId}]");
+            }
+            Console.WriteLine(new string('─', 60));
+            Console.Write($"Enter number (1–{nodes.Count}): ");
+
+            while (true)
+            {
+                string line = Console.ReadLine()?.Trim();
+                if (int.TryParse(line, out int choice) && choice >= 1 && choice <= nodes.Count)
+                    return nodes[choice - 1];
+                Console.Write($"  Please enter a number between 1 and {nodes.Count}: ");
             }
         }
 
