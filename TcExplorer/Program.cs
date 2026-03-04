@@ -59,7 +59,7 @@ namespace TcExplorer
 
                 if (reflectMode)
                 {
-                    TcExplorer.Explore.ReflectHelper.DumpClassificationServices();
+                    TcExplorer.Explore.ReflectHelper.DumpClassificationServices(Session.getConnection());
                     session.logout();
                     return;
                 }

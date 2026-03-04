@@ -1,42 +1,35 @@
 using System;
 using System.Reflection;
+using Teamcenter.Soa.Client;
+
+using Cls0ClassSvc = Cls0.Services.Strong.Classificationcore.ClassificationService;
+using ClassicSvc   = Teamcenter.Services.Strong.Classification.ClassificationService;
 
 namespace TcExplorer.Explore
 {
     /// <summary>Temporary helper — run with -reflect to dump Classification service method signatures.</summary>
     public static class ReflectHelper
     {
-        public static void DumpClassificationServices()
+        public static void DumpClassificationServices(Connection connection)
         {
             Teamcenter.Soa.Client.Model.StrongObjectFactoryClassification.Init();
 
-            string[] typeNames = {
-                "Teamcenter.Services.Strong.Classification.ClassificationService",
-                "Cls0.Services.Strong.Classificationcore.ClassificationService",
+            // Instantiate both services so their assemblies are loaded into the AppDomain
+            object[] services = {
+                Cls0ClassSvc.getService(connection),
+                ClassicSvc.getService(connection),
             };
 
-            foreach (string typeName in typeNames)
+            foreach (object svc in services)
             {
-                Type t = Type.GetType(typeName);
-                if (t == null)
-                {
-                    // search loaded assemblies
-                    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                    {
-                        t = a.GetType(typeName);
-                        if (t != null) break;
-                    }
-                }
-
+                Type t = svc.GetType();
                 Console.WriteLine();
-                if (t == null) { Console.WriteLine("TYPE NOT FOUND: " + typeName); continue; }
                 Console.WriteLine("TYPE: " + t.FullName);
-
                 foreach (MethodInfo m in t.GetMethods(BindingFlags.Public | BindingFlags.Instance))
                 {
                     if (m.DeclaringType != t) continue;
-                    var ps = m.GetParameters();
-                    string pstr = string.Join(", ", Array.ConvertAll(ps, p => p.ParameterType.Name + " " + p.Name));
+                    string pstr = string.Join(", ", Array.ConvertAll(
+                        m.GetParameters(), p => p.ParameterType.Name + " " + p.Name));
                     Console.WriteLine($"  {m.Name}({pstr}) -> {m.ReturnType.Name}");
                 }
             }
