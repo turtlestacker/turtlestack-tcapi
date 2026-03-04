@@ -13,6 +13,7 @@ using Cls0Filter      = Cls0.Services.Strong.Classificationcore._2013_05.Classif
 using Cls0NodeDetails = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
 using Cls0HierarchyNode = Teamcenter.Soa.Client.Model.Strong.Cls0HierarchyNode;
 using ClassAttr       = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
+using System.IO;
 
 namespace TcExplorer.Explore
 {
@@ -152,9 +153,12 @@ namespace TcExplorer.Explore
 
                 if (!string.IsNullOrEmpty(d.NodeId))
                 {
+                    // No attributes for now.
+                    /*
                     try { classNode.Attributes = TimedGetAttributes(classicSvc, d.NodeId); }
                     catch (Exception e)
                     { Console.WriteLine("\n[WARN] Attributes for " + d.NodeId + ": " + e.Message); }
+                    */
                 }
 
                 // d.NodeToUpdate is the Cls0HierarchyNode needed to query children

@@ -58,10 +58,11 @@ namespace TcExplorer
                 ExplorerResult result = new ExplorerResult();
 
                 // ── Folder tree ──────────────────────────────────────────────────
-                sw.Restart();
-                result.FolderTree = new FolderExplorer(Session.getConnection()).BuildTree(user);
-                sw.Stop();
-                Console.WriteLine($"[TIMING] Folder tree:        {sw.Elapsed.TotalSeconds:F2}s");
+                // Folder data not required.
+                // sw.Restart();
+                // result.FolderTree = new FolderExplorer(Session.getConnection()).BuildTree(user);
+                // sw.Stop();
+                // Console.WriteLine($"[TIMING] Folder tree:        {sw.Elapsed.TotalSeconds:F2}s");
 
                 // ── Classification hierarchy ─────────────────────────────────────
                 sw.Restart();
