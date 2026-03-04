@@ -163,11 +163,14 @@ namespace TcExplorer.Explore
                     Name = nodeName
                 };
 
-                // Fetch classified objects for every node
-                if (!string.IsNullOrEmpty(d.NodeId))
+                // Fetch classified objects — only for matching nodes if keyword supplied, otherwise all nodes
+                bool keywordMatch = !string.IsNullOrEmpty(keyword) &&
+                                     nodeName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
+                bool shouldFetch  = !string.IsNullOrEmpty(d.NodeId) &&
+                                     (string.IsNullOrEmpty(keyword) || keywordMatch);
+
+                if (shouldFetch)
                 {
-                    bool keywordMatch = !string.IsNullOrEmpty(keyword) &&
-                                        nodeName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
                     try
                     {
                         classNode.ClassifiedObjects = FetchClassifiedObjects(classicSvc, d.NodeId);
