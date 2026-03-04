@@ -38,7 +38,7 @@ namespace TcExplorer
             int    nodeLimit  = 0;
             int.TryParse(limitStr, out nodeLimit);
 
-            bool reflectMode = arguments.ContainsKey("-reflect");
+            bool reflectMode = Array.Exists(args, a => a.Equals("-reflect", StringComparison.OrdinalIgnoreCase));
 
             var totalTimer = Stopwatch.StartNew();
 
