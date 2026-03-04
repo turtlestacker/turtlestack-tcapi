@@ -34,6 +34,7 @@ namespace TcExplorer.Explore
         private double _childrenMs;
         private double _attributeMs;
         private int    _nodesProcessed;
+        private bool   _wsoRelationsDiagDone;
 
         public ClassificationExplorer(Connection connection)
         {
@@ -243,24 +244,44 @@ namespace TcExplorer.Explore
             foreach (ClsObject co in clsObjects)
                 if (co.WsoId != null) wsoList.Add(co.WsoId);
 
+            // Candidate relation properties — we load them all; the diagnostic will show which have data
+            string[] candidateRelations = {
+                "object_string", "object_type",
+                "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches",
+            };
+
             if (wsoList.Count > 0)
             {
-                try
-                {
-                    // Load WSO name/type and the IMAN_reference relation (attached datasets)
-                    _dmService.GetProperties(wsoList.ToArray(),
-                        new[] { "object_string", "object_type", "IMAN_reference" });
-                }
+                try { _dmService.GetProperties(wsoList.ToArray(), candidateRelations); }
                 catch (Exception e) { Console.WriteLine($"\n[WARN] GetProperties (WSO): {e.Message}"); }
             }
 
-            // ── Step 4: Batch-load dataset names/types ───────────────────────────
+            // ── Step 4: Diagnostic — on the very first WSO ever seen, report which relations have data ─
+            if (wsoList.Count > 0 && !_wsoRelationsDiagDone)
+            {
+                _wsoRelationsDiagDone = true;
+                ModelObject firstWso = wsoList[0];
+                Console.WriteLine($"\n[DIAG] WSO type: {GetStringProp(firstWso, "object_type")}  uid={firstWso.Uid}");
+                foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches" })
+                {
+                    try
+                    {
+                        Property p = firstWso.GetProperty(rel);
+                        int count = p?.ModelObjectArrayValue?.Length ?? 0;
+                        Console.WriteLine($"  {rel}: {count} object(s)");
+                    }
+                    catch (Exception e) { Console.WriteLine($"  {rel}: error — {e.Message}"); }
+                }
+            }
+
+            // ── Step 5: Batch-load dataset names/types ───────────────────────────
+            string datasetRelation = "IMAN_reference"; // update once diagnostic confirms the right one
             var allDatasets = new List<ModelObject>();
             foreach (ModelObject wso in wsoList)
             {
                 try
                 {
-                    Property p = wso.GetProperty("IMAN_reference");
+                    Property p = wso.GetProperty(datasetRelation);
                     if (p != null)
                         foreach (ModelObject ds in p.ModelObjectArrayValue)
                             if (ds != null) allDatasets.Add(ds);
@@ -273,7 +294,7 @@ namespace TcExplorer.Explore
                 catch (Exception e) { Console.WriteLine($"\n[WARN] GetProperties (datasets): {e.Message}"); }
             }
 
-            // ── Step 5: Build result objects ─────────────────────────────────────
+            // ── Step 6: Build result objects ─────────────────────────────────────
             foreach (ClsObject co in clsObjects)
             {
                 var obj = new ClassifiedObject
@@ -285,10 +306,9 @@ namespace TcExplorer.Explore
                     WsoType = GetStringProp(co.WsoId, "object_type"),
                 };
 
-                // Collect attached datasets
                 try
                 {
-                    Property p = co.WsoId?.GetProperty("IMAN_reference");
+                    Property p = co.WsoId?.GetProperty(datasetRelation);
                     if (p != null)
                         foreach (ModelObject ds in p.ModelObjectArrayValue)
                             if (ds != null)
