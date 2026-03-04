@@ -2,24 +2,30 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 
 using Teamcenter.Services.Strong.Classification;
+using Teamcenter.Services.Strong.Core;
 using Teamcenter.Soa.Client;
+using Teamcenter.Soa.Client.Model;
 using TcExplorer.Model;
 
-using Cls0ClassSvc    = Cls0.Services.Strong.Classificationcore.ClassificationService;
-using Cls0InputInfo   = Cls0.Services.Strong.Classificationcore._2013_05.Classification.GetHierarchyNodeChildrenInputInfo;
-using Cls0Filter      = Cls0.Services.Strong.Classificationcore._2013_05.Classification.FilterExpression;
-using Cls0NodeDetails = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
+using Cls0ClassSvc      = Cls0.Services.Strong.Classificationcore.ClassificationService;
+using Cls0InputInfo     = Cls0.Services.Strong.Classificationcore._2013_05.Classification.GetHierarchyNodeChildrenInputInfo;
+using Cls0Filter        = Cls0.Services.Strong.Classificationcore._2013_05.Classification.FilterExpression;
+using Cls0NodeDetails   = Cls0.Services.Strong.Classificationcore._2013_05.Classification.HierarchyNodeDetails;
 using Cls0HierarchyNode = Teamcenter.Soa.Client.Model.Strong.Cls0HierarchyNode;
-using ClassAttr       = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
-using System.IO;
+using ClassAttr         = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
+using SearchClassAttrs  = Teamcenter.Services.Strong.Classification._2007_01.Classification.SearchClassAttributes;
+using SearchAttr        = Teamcenter.Services.Strong.Classification._2007_01.Classification.SearchAttribute;
+using ClsObject         = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationObject;
 
 namespace TcExplorer.Explore
 {
     public class ClassificationExplorer
     {
-        private readonly Connection _connection;
+        private readonly Connection              _connection;
+        private readonly DataManagementService   _dmService;
         private const int MaxDepth = 30;
 
         // Call-count and timing accumulators
@@ -32,10 +38,15 @@ namespace TcExplorer.Explore
         public ClassificationExplorer(Connection connection)
         {
             _connection = connection;
+            _dmService  = DataManagementService.getService(connection);
         }
 
-        /// <summary>Build the full classification hierarchy, stopping after <paramref name="nodeLimit"/> nodes (0 = unlimited).</summary>
-        public List<ClassNode> BuildHierarchy(int nodeLimit = 0)
+        /// <summary>
+        /// Build the classification hierarchy for the user-selected top-level node.
+        /// When a node name contains <paramref name="keyword"/> (case-insensitive),
+        /// all objects classified under that class are fetched and attached.
+        /// </summary>
+        public List<ClassNode> BuildHierarchy(int nodeLimit = 0, string keyword = "")
         {
             _childrenCalls = _attributeCalls = _nodesProcessed = 0;
             _childrenMs    = _attributeMs    = 0;
@@ -47,7 +58,6 @@ namespace TcExplorer.Explore
                 Cls0ClassSvc cls0Service         = Cls0ClassSvc.getService(_connection);
                 ClassificationService classicSvc = ClassificationService.getService(_connection);
 
-                // Step 1: get top-level node model objects
                 var topResp = cls0Service.GetTopLevelNodes();
                 if (topResp == null || topResp.TopLevelNodes == null || topResp.TopLevelNodes.Length == 0)
                 {
@@ -55,8 +65,6 @@ namespace TcExplorer.Explore
                     return new List<ClassNode>();
                 }
 
-                // Step 2: get details for top-level nodes
-                // NodeDetails hashtable: key = Cls0HierarchyNode, value = HierarchyNodeDetails[]
                 var detailsResp = cls0Service.GetHierarchyNodeDetails(topResp.TopLevelNodes);
                 if (detailsResp == null || detailsResp.NodeDetails == null)
                     return new List<ClassNode>();
@@ -74,7 +82,6 @@ namespace TcExplorer.Explore
                     }
                 }
 
-                // Sort by name for a consistent menu order
                 topDetails.Sort((a, b) => string.Compare(
                     string.IsNullOrEmpty(a.NodeName) ? a.NodeId : a.NodeName,
                     string.IsNullOrEmpty(b.NodeName) ? b.NodeId : b.NodeName,
@@ -84,7 +91,10 @@ namespace TcExplorer.Explore
                 if (selected == null)
                     return new List<ClassNode>();
 
-                return BuildFromDetails(cls0Service, classicSvc, new List<Cls0NodeDetails> { selected }, 0, nodeLimit);
+                if (!string.IsNullOrEmpty(keyword))
+                    Console.WriteLine($"[INFO]   Keyword filter: \"{keyword}\" — classified objects fetched for matching nodes");
+
+                return BuildFromDetails(cls0Service, classicSvc, new List<Cls0NodeDetails> { selected }, 0, nodeLimit, keyword);
             }
             catch (Exception e)
             {
@@ -122,12 +132,12 @@ namespace TcExplorer.Explore
             Console.WriteLine($"[STATS]  GetAttributesForClasses calls:  {_attributeCalls}  ({_attributeMs:F0} ms total, avg {(_attributeCalls > 0 ? _attributeMs / _attributeCalls : 0):F0} ms/call)");
         }
 
-        // Recursively build ClassNodes. Returns early once nodeLimit is reached.
         private List<ClassNode> BuildFromDetails(Cls0ClassSvc cls0Service,
                                                  ClassificationService classicSvc,
                                                  List<Cls0NodeDetails> details,
                                                  int depth,
-                                                 int nodeLimit)
+                                                 int nodeLimit,
+                                                 string keyword)
         {
             var result = new List<ClassNode>();
             if (details == null || details.Count == 0 || depth > MaxDepth)
@@ -145,39 +155,245 @@ namespace TcExplorer.Explore
                 _nodesProcessed++;
                 Console.Write($"\r[PROGRESS] Classification nodes: {_nodesProcessed}" + (nodeLimit > 0 ? $"/{nodeLimit}" : "") + "   ");
 
+                string nodeName = string.IsNullOrEmpty(d.NodeName) ? d.NodeId : d.NodeName;
                 var classNode = new ClassNode
                 {
                     Id   = d.NodeId ?? "",
-                    Name = string.IsNullOrEmpty(d.NodeName) ? d.NodeId : d.NodeName
+                    Name = nodeName
                 };
 
-                if (!string.IsNullOrEmpty(d.NodeId))
+                // If this node's name matches the keyword, fetch all classified objects
+                if (!string.IsNullOrEmpty(keyword) &&
+                    nodeName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    !string.IsNullOrEmpty(d.NodeId))
                 {
-                    // No attributes for now.
-                    /*
-                    try { classNode.Attributes = TimedGetAttributes(classicSvc, d.NodeId); }
+                    Console.WriteLine($"\n[MATCH]  \"{nodeName}\" [{d.NodeId}] — fetching classified objects...");
+                    try
+                    {
+                        classNode.ClassifiedObjects = FetchClassifiedObjects(classicSvc, d.NodeId);
+                        Console.WriteLine($"[MATCH]  Found {classNode.ClassifiedObjects.Count} classified object(s).");
+                    }
                     catch (Exception e)
-                    { Console.WriteLine("\n[WARN] Attributes for " + d.NodeId + ": " + e.Message); }
-                    */
+                    {
+                        Console.WriteLine($"\n[WARN] FetchClassifiedObjects for {d.NodeId}: {e.Message}");
+                    }
                 }
 
-                // d.NodeToUpdate is the Cls0HierarchyNode needed to query children
                 if (d.NodeToUpdate != null)
                 {
                     try
                     {
                         List<Cls0NodeDetails> childDetails = TimedFetchChildDetails(cls0Service, d.NodeToUpdate);
                         if (childDetails.Count > 0)
-                            classNode.Children = BuildFromDetails(cls0Service, classicSvc, childDetails, depth + 1, nodeLimit);
+                            classNode.Children = BuildFromDetails(cls0Service, classicSvc, childDetails, depth + 1, nodeLimit, keyword);
                     }
                     catch (Exception e)
-                    { Console.WriteLine("\n[WARN] Children for " + d.NodeId + ": " + e.Message); }
+                    { Console.WriteLine($"\n[WARN] Children for {d.NodeId}: {e.Message}"); }
                 }
 
                 result.Add(classNode);
             }
 
             return result;
+        }
+
+        private List<ClassifiedObject> FetchClassifiedObjects(ClassificationService classicSvc, string classId)
+        {
+            var result = new List<ClassifiedObject>();
+
+            // ── Step 1: Search for all ICOs in this class ────────────────────────
+            var criteria = new SearchClassAttrs
+            {
+                ClassIds         = new[] { classId },
+                SearchAttributes = new SearchAttr[0],
+                SearchOption     = 0
+            };
+
+            var searchResp = classicSvc.Search(new[] { criteria });
+            if (searchResp == null || searchResp.ClsObjTags == null || searchResp.ClsObjTags.Count == 0)
+                return result;
+
+            // ClsObjTags: key = classId (string), value = ModelObject[] (ICO objects)
+            var icoObjects = new List<ModelObject>();
+            foreach (DictionaryEntry entry in searchResp.ClsObjTags)
+            {
+                ModelObject[] arr = entry.Value as ModelObject[];
+                if (arr != null)
+                {
+                    icoObjects.AddRange(arr);
+                }
+                else if (entry.Value != null)
+                {
+                    // Unexpected type — log for diagnostics
+                    Console.WriteLine($"\n[DEBUG] ClsObjTags value type: {entry.Value.GetType().FullName}");
+                    // Try single ModelObject
+                    ModelObject single = entry.Value as ModelObject;
+                    if (single != null) icoObjects.Add(single);
+                }
+            }
+
+            if (icoObjects.Count == 0)
+                return result;
+
+            // ── Step 2: Get full classification objects (ICO → WsoId + Properties) ─
+            var clsObjsResp = classicSvc.GetClassificationObjects(icoObjects.ToArray());
+            if (clsObjsResp == null)
+                return result;
+
+            // GetClassificationObjectsResponse has a ClsObjs field or similar — discover at runtime
+            // Use reflection to find the array/collection field
+            ClsObject[] clsObjects = ExtractClassificationObjects(clsObjsResp);
+            if (clsObjects == null || clsObjects.Length == 0)
+                return result;
+
+            // ── Step 3: Batch-load WSO names ─────────────────────────────────────
+            var wsoList = new List<ModelObject>();
+            foreach (ClsObject co in clsObjects)
+                if (co.WsoId != null) wsoList.Add(co.WsoId);
+
+            if (wsoList.Count > 0)
+            {
+                try { _dmService.GetProperties(wsoList.ToArray(), new[] { "object_string", "object_type" }); }
+                catch (Exception e) { Console.WriteLine($"\n[WARN] GetProperties for WSOs: {e.Message}"); }
+            }
+
+            // ── Step 4: Build result objects ─────────────────────────────────────
+            foreach (ClsObject co in clsObjects)
+            {
+                var obj = new ClassifiedObject
+                {
+                    IcoUid  = co.ClsObjTag?.Uid ?? "",
+                    ClassId = co.ClassId ?? classId,
+                    WsoUid  = co.WsoId?.Uid ?? "",
+                    WsoName = GetStringProp(co.WsoId, "object_string"),
+                    WsoType = GetStringProp(co.WsoId, "object_type"),
+                };
+
+                if (co.Properties != null)
+                    obj.Attributes = ExtractAttributes(co.Properties);
+
+                result.Add(obj);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Extract ClassificationObject[] from GetClassificationObjectsResponse via reflection,
+        /// since the exact response field name may vary by SDK version.
+        /// </summary>
+        private static ClsObject[] ExtractClassificationObjects(object response)
+        {
+            if (response == null) return null;
+            Type t = response.GetType();
+
+            // Try known field names
+            foreach (string name in new[] { "ClsObjs", "ClassificationObjects", "Objects" })
+            {
+                FieldInfo f = t.GetField(name, BindingFlags.Public | BindingFlags.Instance);
+                if (f != null)
+                {
+                    ClsObject[] arr = f.GetValue(response) as ClsObject[];
+                    if (arr != null) return arr;
+                }
+            }
+
+            // Fallback: scan all fields for ClsObject[]
+            foreach (FieldInfo f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (f.FieldType == typeof(ClsObject[]))
+                    return f.GetValue(response) as ClsObject[];
+            }
+
+            // Nothing matched — dump fields for diagnostics
+            Console.WriteLine($"\n[DEBUG] GetClassificationObjects response type: {t.FullName}");
+            foreach (FieldInfo f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                Console.WriteLine($"  FIELD: {f.FieldType.Name} {f.Name}");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Extract attribute name/value pairs from ClassificationProperty[] via reflection,
+        /// since the exact fields depend on the SDK version.
+        /// </summary>
+        private static List<ClassifiedObjectAttribute> ExtractAttributes(object properties)
+        {
+            var result = new List<ClassifiedObjectAttribute>();
+            if (properties == null) return result;
+
+            // properties is ClassificationProperty[] — iterate as Array
+            Array arr = properties as Array;
+            if (arr == null) return result;
+
+            bool typeDumped = false;
+            foreach (object prop in arr)
+            {
+                if (prop == null) continue;
+                Type t = prop.GetType();
+
+                // Discover fields once
+                if (!typeDumped)
+                {
+                    typeDumped = true;
+                    // Uncomment to debug:
+                    // Console.WriteLine($"\n[DEBUG] ClassificationProperty type: {t.FullName}");
+                    // foreach (var f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                    //     Console.WriteLine($"  FIELD: {f.FieldType.Name} {f.Name}");
+                }
+
+                string attrId   = GetFieldString(prop, t, "AttributeId", "Id", "AttrId");
+                string attrName = GetFieldString(prop, t, "Name", "AttributeName");
+                string value    = GetFieldStringOrArray(prop, t, "Values", "Value", "StringValue");
+
+                if (attrId != null || attrName != null)
+                {
+                    result.Add(new ClassifiedObjectAttribute
+                    {
+                        Id    = attrId   ?? "",
+                        Name  = attrName ?? attrId ?? "",
+                        Value = value    ?? ""
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        private static string GetFieldString(object obj, Type t, params string[] names)
+        {
+            foreach (string name in names)
+            {
+                FieldInfo f = t.GetField(name, BindingFlags.Public | BindingFlags.Instance);
+                if (f != null) return f.GetValue(obj)?.ToString();
+            }
+            return null;
+        }
+
+        private static string GetFieldStringOrArray(object obj, Type t, params string[] names)
+        {
+            foreach (string name in names)
+            {
+                FieldInfo f = t.GetField(name, BindingFlags.Public | BindingFlags.Instance);
+                if (f == null) continue;
+                object val = f.GetValue(obj);
+                if (val == null) continue;
+                string[] sarr = val as string[];
+                if (sarr != null) return string.Join("; ", sarr);
+                return val.ToString();
+            }
+            return null;
+        }
+
+        private static string GetStringProp(ModelObject obj, string propName)
+        {
+            if (obj == null) return "";
+            try
+            {
+                Property p = obj.GetProperty(propName);
+                return p != null ? p.StringValue : "";
+            }
+            catch { return ""; }
         }
 
         private List<Cls0NodeDetails> TimedFetchChildDetails(Cls0ClassSvc service, Cls0HierarchyNode parentNode)
@@ -200,8 +416,6 @@ namespace TcExplorer.Explore
             return result;
         }
 
-        // Call GetHierarchyNodeChildren and extract HierarchyNodeDetails[] from the response hashtable.
-        // Confirmed structure: key = Cls0GroupNode, value = HierarchyNodeDetails[]
         private static List<Cls0NodeDetails> FetchChildDetails(Cls0ClassSvc service, Cls0HierarchyNode parentNode)
         {
             var input = new Cls0InputInfo
@@ -213,7 +427,7 @@ namespace TcExplorer.Explore
             };
 
             var childResp = service.GetHierarchyNodeChildren(new[] { input });
-            var result = new List<Cls0NodeDetails>();
+            var result    = new List<Cls0NodeDetails>();
 
             if (childResp == null || childResp.Children == null || childResp.Children.Count == 0)
                 return result;
@@ -231,8 +445,7 @@ namespace TcExplorer.Explore
         private static List<ClassAttribute> GetAttributes(ClassificationService service, string classId)
         {
             var result = new List<ClassAttribute>();
-
-            var resp = service.GetAttributesForClasses(new[] { classId });
+            var resp   = service.GetAttributesForClasses(new[] { classId });
             if (resp == null || resp.Attributes == null)
                 return result;
 
@@ -240,7 +453,6 @@ namespace TcExplorer.Explore
             {
                 ClassAttr[] attrs = entry.Value as ClassAttr[];
                 if (attrs == null) continue;
-
                 foreach (ClassAttr attr in attrs)
                 {
                     result.Add(new ClassAttribute

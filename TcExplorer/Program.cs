@@ -26,6 +26,7 @@ namespace TcExplorer
                 Console.WriteLine("   appID:  SSO application ID");
                 Console.WriteLine("   out:    Output JSON file path (default: tc_explorer_output.json)");
                 Console.WriteLine("   limit:  Stop after N classification nodes (0 = unlimited, default: 0)");
+                Console.WriteLine("   keyword: Fetch all classified objects for nodes whose name contains this word");
                 return;
             }
 
@@ -34,7 +35,8 @@ namespace TcExplorer
             string ssoURL     = Session.GetOptionalArg(arguments, "-sso",   "");
             string appID      = Session.GetOptionalArg(arguments, "-appID", "");
             string outPath    = Session.GetOptionalArg(arguments, "-out",   "tc_explorer_output.json");
-            string limitStr   = Session.GetOptionalArg(arguments, "-limit", "0");
+            string limitStr   = Session.GetOptionalArg(arguments, "-limit",   "0");
+            string keyword    = Session.GetOptionalArg(arguments, "-keyword", "");
             int    nodeLimit  = 0;
             int.TryParse(limitStr, out nodeLimit);
 
@@ -78,7 +80,7 @@ namespace TcExplorer
                 var classExplorer = new ClassificationExplorer(Session.getConnection());
                 if (nodeLimit > 0)
                     Console.WriteLine($"[INFO]   Classification node limit: {nodeLimit}");
-                result.ClassificationTree = classExplorer.BuildHierarchy(nodeLimit);
+                result.ClassificationTree = classExplorer.BuildHierarchy(nodeLimit, keyword);
                 sw.Stop();
                 Console.WriteLine($"[TIMING] Classification:     {sw.Elapsed.TotalSeconds:F2}s");
                 classExplorer.PrintCallStats();
