@@ -271,6 +271,7 @@ namespace TcExplorer.Explore
             string[] candidateRelations = {
                 "object_string", "object_type",
                 "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches",
+                "SymbolImageFiles", "SymbolFiles",
             };
             if (wsoList.Count > 0)
             {
@@ -282,7 +283,7 @@ namespace TcExplorer.Explore
             var allDatasets = new List<ModelObject>();
             foreach (ModelObject wso in wsoList)
             {
-                foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches" })
+                foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches", "SymbolImageFiles", "SymbolFiles" })
                 {
                     try
                     {
@@ -313,7 +314,7 @@ namespace TcExplorer.Explore
                 };
 
                 // Collect datasets from all relations
-                foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches" })
+                foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches", "SymbolImageFiles", "SymbolFiles" })
                 {
                     try
                     {
