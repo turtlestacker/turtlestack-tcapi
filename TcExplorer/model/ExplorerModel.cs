@@ -9,6 +9,13 @@ namespace TcExplorer.Model
         public string Value { get; set; }
     }
 
+    public class DatasetInfo
+    {
+        public string Uid  { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+    }
+
     public class ClassifiedObject
     {
         public string IcoUid  { get; set; }
@@ -16,6 +23,7 @@ namespace TcExplorer.Model
         public string WsoUid  { get; set; }
         public string WsoName { get; set; }
         public string WsoType { get; set; }
+        public List<DatasetInfo>              Datasets   { get; set; } = new List<DatasetInfo>();
         public List<ClassifiedObjectAttribute> Attributes { get; set; } = new List<ClassifiedObjectAttribute>();
     }
 

@@ -173,31 +173,22 @@ namespace TcExplorer.Explore
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"\n  [WARN] FetchClassifiedObjects for {d.NodeId}: {e.Message}");
+                        Console.WriteLine($"\n[WARN] {d.NodeId}: {e.Message}");
                     }
 
                     int count = classNode.ClassifiedObjects.Count;
                     if (count > 0)
                     {
-                        Console.WriteLine();
-                        if (keywordMatch)
-                        {
-                            Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
-                            Console.WriteLine($"║  KEYWORD MATCH + OBJECTS FOUND: \"{nodeName}\"");
-                            Console.WriteLine($"║  Class ID: {d.NodeId}");
-                            Console.WriteLine("╠══════════════════════════════════════════════════════════╣");
-                        }
-                        else
-                        {
-                            Console.WriteLine("┌──────────────────────────────────────────────────────────┐");
-                            Console.WriteLine($"│  OBJECTS FOUND: \"{nodeName}\"  [{d.NodeId}]");
-                            Console.WriteLine("├──────────────────────────────────────────────────────────┤");
-                        }
+                        string header = keywordMatch
+                            ? $"*** {nodeName} [{d.NodeId}]  ({count} object(s))"
+                            : $"    {nodeName} [{d.NodeId}]  ({count} object(s))";
+                        Console.WriteLine("\n" + header);
                         foreach (ClassifiedObject co in classNode.ClassifiedObjects)
-                            Console.WriteLine($"│    {co.WsoName}  [{co.WsoType}]  uid={co.WsoUid}");
-                        Console.WriteLine(keywordMatch
-                            ? "╚══════════════════════════════════════════════════════════╝"
-                            : "└──────────────────────────────────────────────────────────┘");
+                        {
+                            Console.WriteLine($"  {co.WsoName}  [{co.WsoType}]");
+                            foreach (DatasetInfo ds in co.Datasets)
+                                Console.WriteLine($"    image: {ds.Name}  [{ds.Type}]  uid={ds.Uid}");
+                        }
                     }
                 }
 
@@ -223,82 +214,66 @@ namespace TcExplorer.Explore
         {
             var result = new List<ClassifiedObject>();
 
-            // ── Step 1: Search for all ICOs in this class ────────────────────────
-            var criteria = new SearchClassAttrs
+            // ── Step 1: Search for ICOs in this class ────────────────────────────
+            var searchResp = classicSvc.Search(new[] { new SearchClassAttrs
             {
                 ClassIds         = new[] { classId },
                 SearchAttributes = new SearchAttr[0],
                 SearchOption     = 0
-            };
+            }});
 
-            var searchResp = classicSvc.Search(new[] { criteria });
+            if (searchResp?.ClsObjTags == null) return result;
 
-            if (searchResp == null)
-            {
-                Console.WriteLine("\n  [DIAG] Search() returned null response.");
-                return result;
-            }
-            if (searchResp.ClsObjTags == null)
-            {
-                Console.WriteLine("\n  [DIAG] Search() ClsObjTags is null.");
-                return result;
-            }
-            Console.WriteLine($"\n  [DIAG] Search() ClsObjTags entries: {searchResp.ClsObjTags.Count}");
-
-            // ClsObjTags: key = classId (string), value = ModelObject[] (ICO objects)
             var icoObjects = new List<ModelObject>();
             foreach (DictionaryEntry entry in searchResp.ClsObjTags)
             {
-                Console.WriteLine($"  [DIAG]   key type={entry.Key?.GetType().Name} \"{entry.Key}\"  " +
-                                  $"value type={entry.Value?.GetType().Name ?? "null"}");
-
                 ModelObject[] arr = entry.Value as ModelObject[];
-                if (arr != null)
-                {
-                    Console.WriteLine($"  [DIAG]   → {arr.Length} ICO model object(s)");
-                    icoObjects.AddRange(arr);
-                }
-                else if (entry.Value != null)
-                {
-                    // Unexpected type — dump it so we can adapt
-                    Type vt = entry.Value.GetType();
-                    Console.WriteLine($"  [DIAG]   → unexpected value type: {vt.FullName}");
-                    foreach (FieldInfo f in vt.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                        Console.WriteLine($"            FIELD {f.FieldType.Name} {f.Name}");
-                    ModelObject single = entry.Value as ModelObject;
-                    if (single != null) icoObjects.Add(single);
-                }
+                if (arr != null) icoObjects.AddRange(arr);
+                else if (entry.Value is ModelObject mo) icoObjects.Add(mo);
             }
+            if (icoObjects.Count == 0) return result;
 
-            Console.WriteLine($"  [DIAG] ICO objects extracted: {icoObjects.Count}");
-            if (icoObjects.Count == 0)
-                return result;
-
-            // ── Step 2: Get full classification objects (ICO → WsoId + Properties) ─
+            // ── Step 2: Get ClassificationObjects (ICO → WsoId + Properties) ────
             var clsObjsResp = classicSvc.GetClassificationObjects(icoObjects.ToArray());
-            if (clsObjsResp == null)
-            {
-                Console.WriteLine("  [DIAG] GetClassificationObjects() returned null.");
-                return result;
-            }
-
             ClsObject[] clsObjects = ExtractClassificationObjects(clsObjsResp);
-            Console.WriteLine($"  [DIAG] ClassificationObject[] extracted: {clsObjects?.Length.ToString() ?? "null"}");
-            if (clsObjects == null || clsObjects.Length == 0)
-                return result;
+            if (clsObjects == null || clsObjects.Length == 0) return result;
 
-            // ── Step 3: Batch-load WSO names ─────────────────────────────────────
+            // ── Step 3: Batch-load WSO name/type + image datasets ────────────────
             var wsoList = new List<ModelObject>();
             foreach (ClsObject co in clsObjects)
                 if (co.WsoId != null) wsoList.Add(co.WsoId);
 
             if (wsoList.Count > 0)
             {
-                try { _dmService.GetProperties(wsoList.ToArray(), new[] { "object_string", "object_type" }); }
-                catch (Exception e) { Console.WriteLine($"\n  [WARN] GetProperties for WSOs: {e.Message}"); }
+                try
+                {
+                    // Load WSO name/type and the IMAN_reference relation (attached datasets)
+                    _dmService.GetProperties(wsoList.ToArray(),
+                        new[] { "object_string", "object_type", "IMAN_reference" });
+                }
+                catch (Exception e) { Console.WriteLine($"\n[WARN] GetProperties (WSO): {e.Message}"); }
             }
 
-            // ── Step 4: Build result objects ─────────────────────────────────────
+            // ── Step 4: Batch-load dataset names/types ───────────────────────────
+            var allDatasets = new List<ModelObject>();
+            foreach (ModelObject wso in wsoList)
+            {
+                try
+                {
+                    Property p = wso.GetProperty("IMAN_reference");
+                    if (p != null)
+                        foreach (ModelObject ds in p.ModelObjectArrayValue)
+                            if (ds != null) allDatasets.Add(ds);
+                }
+                catch { }
+            }
+            if (allDatasets.Count > 0)
+            {
+                try { _dmService.GetProperties(allDatasets.ToArray(), new[] { "object_string", "object_type" }); }
+                catch (Exception e) { Console.WriteLine($"\n[WARN] GetProperties (datasets): {e.Message}"); }
+            }
+
+            // ── Step 5: Build result objects ─────────────────────────────────────
             foreach (ClsObject co in clsObjects)
             {
                 var obj = new ClassifiedObject
@@ -309,6 +284,22 @@ namespace TcExplorer.Explore
                     WsoName = GetStringProp(co.WsoId, "object_string"),
                     WsoType = GetStringProp(co.WsoId, "object_type"),
                 };
+
+                // Collect attached datasets
+                try
+                {
+                    Property p = co.WsoId?.GetProperty("IMAN_reference");
+                    if (p != null)
+                        foreach (ModelObject ds in p.ModelObjectArrayValue)
+                            if (ds != null)
+                                obj.Datasets.Add(new DatasetInfo
+                                {
+                                    Uid  = ds.Uid,
+                                    Name = GetStringProp(ds, "object_string"),
+                                    Type = GetStringProp(ds, "object_type"),
+                                });
+                }
+                catch { }
 
                 if (co.Properties != null)
                     obj.Attributes = ExtractAttributes(co.Properties);
@@ -329,13 +320,7 @@ namespace TcExplorer.Explore
             Type t = response.GetType();
 
             FieldInfo clsObjsField = t.GetField("ClsObjs", BindingFlags.Public | BindingFlags.Instance);
-            if (clsObjsField == null)
-            {
-                Console.WriteLine($"\n  [DIAG] No 'ClsObjs' field on {t.FullName}");
-                foreach (FieldInfo f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                    Console.WriteLine($"    FIELD {f.FieldType.Name} {f.Name}");
-                return null;
-            }
+            if (clsObjsField == null) return null;
 
             Hashtable ht = clsObjsField.GetValue(response) as Hashtable;
             if (ht == null || ht.Count == 0) return new ClsObject[0];
@@ -344,20 +329,8 @@ namespace TcExplorer.Explore
             foreach (DictionaryEntry entry in ht)
             {
                 ClsObject[] arr = entry.Value as ClsObject[];
-                if (arr != null)
-                {
-                    list.AddRange(arr);
-                }
-                else if (entry.Value is ClsObject)
-                {
-                    list.Add((ClsObject)entry.Value);
-                }
-                else if (entry.Value != null)
-                {
-                    Console.WriteLine($"\n  [DIAG] ClsObjs value type: {entry.Value.GetType().FullName}");
-                    foreach (FieldInfo f in entry.Value.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
-                        Console.WriteLine($"    FIELD {f.FieldType.Name} {f.Name}");
-                }
+                if (arr != null) list.AddRange(arr);
+                else if (entry.Value is ClsObject single) list.Add(single);
             }
             return list.ToArray();
         }
@@ -381,14 +354,7 @@ namespace TcExplorer.Explore
                 if (prop == null) continue;
                 Type t = prop.GetType();
 
-                // Dump fields once so we know the actual structure
-                if (!typeDumped)
-                {
-                    typeDumped = true;
-                    Console.WriteLine($"\n  [DIAG] ClassificationProperty type: {t.FullName}");
-                    foreach (FieldInfo fi in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                        Console.WriteLine($"    FIELD {fi.FieldType.Name} {fi.Name}");
-                }
+                if (!typeDumped) typeDumped = true; // field structure confirmed, no need to dump
 
                 string attrId   = GetFieldString(prop, t, "AttributeId", "Id", "AttrId");
                 string attrName = GetFieldString(prop, t, "Name", "AttributeName");
