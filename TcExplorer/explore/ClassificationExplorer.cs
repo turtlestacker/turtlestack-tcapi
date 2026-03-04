@@ -162,38 +162,42 @@ namespace TcExplorer.Explore
                     Name = nodeName
                 };
 
-                // If this node's name matches the keyword, fetch all classified objects
-                if (!string.IsNullOrEmpty(keyword) &&
-                    nodeName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    !string.IsNullOrEmpty(d.NodeId))
+                // Fetch classified objects for every node
+                if (!string.IsNullOrEmpty(d.NodeId))
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
-                    Console.WriteLine($"║  KEYWORD MATCH: \"{nodeName}\"");
-                    Console.WriteLine($"║  Class ID: {d.NodeId}");
-                    Console.WriteLine("║  Fetching classified objects...");
-                    Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
+                    bool keywordMatch = !string.IsNullOrEmpty(keyword) &&
+                                        nodeName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
                     try
                     {
                         classNode.ClassifiedObjects = FetchClassifiedObjects(classicSvc, d.NodeId);
-                        int count = classNode.ClassifiedObjects.Count;
-                        if (count > 0)
-                        {
-                            Console.WriteLine("┌──────────────────────────────────────────────────────────┐");
-                            Console.WriteLine($"│  *** {count} CLASSIFIED OBJECT(S) FOUND ***");
-                            foreach (ClassifiedObject co in classNode.ClassifiedObjects)
-                                Console.WriteLine($"│    {co.WsoName}  [{co.WsoType}]  uid={co.WsoUid}");
-                            Console.WriteLine("└──────────────────────────────────────────────────────────┘");
-                        }
-                        else
-                        {
-                            Console.WriteLine("  (no classified objects found for this class)");
-                        }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"  [WARN] FetchClassifiedObjects for {d.NodeId}: {e.Message}");
-                        Console.WriteLine($"  {e.StackTrace}");
+                        Console.WriteLine($"\n  [WARN] FetchClassifiedObjects for {d.NodeId}: {e.Message}");
+                    }
+
+                    int count = classNode.ClassifiedObjects.Count;
+                    if (count > 0)
+                    {
+                        Console.WriteLine();
+                        if (keywordMatch)
+                        {
+                            Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
+                            Console.WriteLine($"║  KEYWORD MATCH + OBJECTS FOUND: \"{nodeName}\"");
+                            Console.WriteLine($"║  Class ID: {d.NodeId}");
+                            Console.WriteLine("╠══════════════════════════════════════════════════════════╣");
+                        }
+                        else
+                        {
+                            Console.WriteLine("┌──────────────────────────────────────────────────────────┐");
+                            Console.WriteLine($"│  OBJECTS FOUND: \"{nodeName}\"  [{d.NodeId}]");
+                            Console.WriteLine("├──────────────────────────────────────────────────────────┤");
+                        }
+                        foreach (ClassifiedObject co in classNode.ClassifiedObjects)
+                            Console.WriteLine($"│    {co.WsoName}  [{co.WsoType}]  uid={co.WsoUid}");
+                        Console.WriteLine(keywordMatch
+                            ? "╚══════════════════════════════════════════════════════════╝"
+                            : "└──────────────────────────────────────────────────────────┘");
                     }
                 }
 
