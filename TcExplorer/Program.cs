@@ -38,6 +38,8 @@ namespace TcExplorer
             int    nodeLimit  = 0;
             int.TryParse(limitStr, out nodeLimit);
 
+            bool reflectMode = arguments.ContainsKey("-reflect");
+
             var totalTimer = Stopwatch.StartNew();
 
             try
@@ -54,6 +56,13 @@ namespace TcExplorer
                     return;
                 }
                 Console.WriteLine($"[TIMING] Login:              {sw.Elapsed.TotalSeconds:F2}s");
+
+                if (reflectMode)
+                {
+                    TcExplorer.Explore.ReflectHelper.DumpClassificationServices();
+                    session.logout();
+                    return;
+                }
 
                 ExplorerResult result = new ExplorerResult();
 

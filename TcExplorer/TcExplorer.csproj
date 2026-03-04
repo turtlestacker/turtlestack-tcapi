@@ -122,6 +122,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="explore\FolderExplorer.cs" />
     <Compile Include="explore\ClassificationExplorer.cs" />
+    <Compile Include="explore\ReflectHelper.cs" />
     <Compile Include="output\ConsoleRenderer.cs" />
     <Compile Include="output\JsonExporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
