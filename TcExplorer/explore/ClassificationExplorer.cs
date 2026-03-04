@@ -320,38 +320,46 @@ namespace TcExplorer.Explore
         }
 
         /// <summary>
-        /// Extract ClassificationObject[] from GetClassificationObjectsResponse via reflection,
-        /// since the exact response field name may vary by SDK version.
+        /// Extract ClassificationObject[] from GetClassificationObjectsResponse.
+        /// Confirmed structure: FIELD Hashtable ClsObjs  (key=string classId, value=ClassificationObject[])
         /// </summary>
         private static ClsObject[] ExtractClassificationObjects(object response)
         {
             if (response == null) return null;
             Type t = response.GetType();
 
-            // Try known field names
-            foreach (string name in new[] { "ClsObjs", "ClassificationObjects", "Objects" })
+            FieldInfo clsObjsField = t.GetField("ClsObjs", BindingFlags.Public | BindingFlags.Instance);
+            if (clsObjsField == null)
             {
-                FieldInfo f = t.GetField(name, BindingFlags.Public | BindingFlags.Instance);
-                if (f != null)
+                Console.WriteLine($"\n  [DIAG] No 'ClsObjs' field on {t.FullName}");
+                foreach (FieldInfo f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                    Console.WriteLine($"    FIELD {f.FieldType.Name} {f.Name}");
+                return null;
+            }
+
+            Hashtable ht = clsObjsField.GetValue(response) as Hashtable;
+            if (ht == null || ht.Count == 0) return new ClsObject[0];
+
+            var list = new List<ClsObject>();
+            foreach (DictionaryEntry entry in ht)
+            {
+                ClsObject[] arr = entry.Value as ClsObject[];
+                if (arr != null)
                 {
-                    ClsObject[] arr = f.GetValue(response) as ClsObject[];
-                    if (arr != null) return arr;
+                    list.AddRange(arr);
+                }
+                else if (entry.Value is ClsObject)
+                {
+                    list.Add((ClsObject)entry.Value);
+                }
+                else if (entry.Value != null)
+                {
+                    Console.WriteLine($"\n  [DIAG] ClsObjs value type: {entry.Value.GetType().FullName}");
+                    foreach (FieldInfo f in entry.Value.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
+                        Console.WriteLine($"    FIELD {f.FieldType.Name} {f.Name}");
                 }
             }
-
-            // Fallback: scan all fields for ClsObject[]
-            foreach (FieldInfo f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (f.FieldType == typeof(ClsObject[]))
-                    return f.GetValue(response) as ClsObject[];
-            }
-
-            // Nothing matched — dump fields for diagnostics
-            Console.WriteLine($"\n[DEBUG] GetClassificationObjects response type: {t.FullName}");
-            foreach (FieldInfo f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                Console.WriteLine($"  FIELD: {f.FieldType.Name} {f.Name}");
-
-            return null;
+            return list.ToArray();
         }
 
         /// <summary>
