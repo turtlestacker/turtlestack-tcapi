@@ -34,7 +34,8 @@ namespace TcExplorer.Explore
         private double _childrenMs;
         private double _attributeMs;
         private int    _nodesProcessed;
-        private bool   _wsoRelationsDiagDone;
+        // Cache of classification attribute ID → display name, populated per class
+        private readonly Dictionary<string, string> _attrNameCache = new Dictionary<string, string>();
 
         public ClassificationExplorer(Connection connection)
         {
@@ -247,49 +248,51 @@ namespace TcExplorer.Explore
             foreach (ClsObject co in clsObjects)
                 if (co.WsoId != null) wsoList.Add(co.WsoId);
 
-            // Candidate relation properties — we load them all; the diagnostic will show which have data
+            // ── Step 3b: Populate attribute name cache for this class ─────────────
+            try
+            {
+                var attrResp = classicSvc.GetAttributesForClasses(new[] { classId });
+                if (attrResp?.Attributes != null)
+                    foreach (DictionaryEntry entry in attrResp.Attributes)
+                    {
+                        ClassAttr[] attrs = entry.Value as ClassAttr[];
+                        if (attrs == null) continue;
+                        foreach (ClassAttr a in attrs)
+                        {
+                            string key = a.Id.ToString();
+                            if (!_attrNameCache.ContainsKey(key))
+                                _attrNameCache[key] = a.Name ?? key;
+                        }
+                    }
+            }
+            catch { }
+
+            // ── Step 4: Batch-load WSO name/type + all candidate dataset relations ─
             string[] candidateRelations = {
                 "object_string", "object_type",
                 "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches",
             };
-
             if (wsoList.Count > 0)
             {
                 try { _dmService.GetProperties(wsoList.ToArray(), candidateRelations); }
                 catch (Exception e) { Console.WriteLine($"\n[WARN] GetProperties (WSO): {e.Message}"); }
             }
 
-            // ── Step 4: Diagnostic — on the very first WSO ever seen, report which relations have data ─
-            if (wsoList.Count > 0 && !_wsoRelationsDiagDone)
+            // ── Step 5: Batch-load dataset names/types (collect from all relations) ─
+            var allDatasets = new List<ModelObject>();
+            foreach (ModelObject wso in wsoList)
             {
-                _wsoRelationsDiagDone = true;
-                ModelObject firstWso = wsoList[0];
-                Console.WriteLine($"\n[DIAG] WSO type: {GetStringProp(firstWso, "object_type")}  uid={firstWso.Uid}");
                 foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches" })
                 {
                     try
                     {
-                        Property p = firstWso.GetProperty(rel);
-                        int count = p?.ModelObjectArrayValue?.Length ?? 0;
-                        Console.WriteLine($"  {rel}: {count} object(s)");
+                        Property p = wso.GetProperty(rel);
+                        if (p?.ModelObjectArrayValue != null)
+                            foreach (ModelObject ds in p.ModelObjectArrayValue)
+                                if (ds != null) allDatasets.Add(ds);
                     }
-                    catch (Exception e) { Console.WriteLine($"  {rel}: error — {e.Message}"); }
+                    catch { }
                 }
-            }
-
-            // ── Step 5: Batch-load dataset names/types ───────────────────────────
-            string datasetRelation = "IMAN_reference"; // update once diagnostic confirms the right one
-            var allDatasets = new List<ModelObject>();
-            foreach (ModelObject wso in wsoList)
-            {
-                try
-                {
-                    Property p = wso.GetProperty(datasetRelation);
-                    if (p != null)
-                        foreach (ModelObject ds in p.ModelObjectArrayValue)
-                            if (ds != null) allDatasets.Add(ds);
-                }
-                catch { }
             }
             if (allDatasets.Count > 0)
             {
@@ -309,23 +312,28 @@ namespace TcExplorer.Explore
                     WsoType = GetStringProp(co.WsoId, "object_type"),
                 };
 
-                try
+                // Collect datasets from all relations
+                foreach (string rel in new[] { "IMAN_reference", "IMAN_specification", "IMAN_manifestation", "TC_Attaches" })
                 {
-                    Property p = co.WsoId?.GetProperty(datasetRelation);
-                    if (p != null)
+                    try
+                    {
+                        Property p = co.WsoId?.GetProperty(rel);
+                        if (p?.ModelObjectArrayValue == null) continue;
                         foreach (ModelObject ds in p.ModelObjectArrayValue)
                             if (ds != null)
                                 obj.Datasets.Add(new DatasetInfo
                                 {
-                                    Uid  = ds.Uid,
-                                    Name = GetStringProp(ds, "object_string"),
-                                    Type = GetStringProp(ds, "object_type"),
+                                    Uid      = ds.Uid,
+                                    Name     = GetStringProp(ds, "object_string"),
+                                    Type     = GetStringProp(ds, "object_type"),
+                                    Relation = rel,
                                 });
+                    }
+                    catch { }
                 }
-                catch { }
 
                 if (co.Properties != null)
-                    obj.Attributes = ExtractAttributes(co.Properties);
+                    obj.Attributes = ExtractAttributes(co.Properties, _attrNameCache);
 
                 result.Add(obj);
             }
@@ -362,7 +370,7 @@ namespace TcExplorer.Explore
         /// Extract attribute name/value pairs from ClassificationProperty[] via reflection,
         /// since the exact fields depend on the SDK version.
         /// </summary>
-        private static List<ClassifiedObjectAttribute> ExtractAttributes(object properties)
+        private static List<ClassifiedObjectAttribute> ExtractAttributes(object properties, Dictionary<string, string> nameCache = null)
         {
             var result = new List<ClassifiedObjectAttribute>();
             if (properties == null) return result;
@@ -381,7 +389,12 @@ namespace TcExplorer.Explore
 
                 string attrId   = GetFieldString(prop, t, "AttributeId", "Id", "AttrId");
                 string attrName = GetFieldString(prop, t, "Name", "AttributeName");
-                string value    = GetFieldStringOrArray(prop, t, "Values", "Value", "StringValue");
+
+                // Look up display name from cache if the property itself doesn't carry one
+                if (string.IsNullOrEmpty(attrName) && attrId != null && nameCache != null)
+                    nameCache.TryGetValue(attrId, out attrName);
+
+                string value = GetFieldStringOrArray(prop, t, "Values", "Value", "StringValue");
 
                 if (attrId != null || attrName != null)
                 {
@@ -415,8 +428,28 @@ namespace TcExplorer.Explore
                 if (f == null) continue;
                 object val = f.GetValue(obj);
                 if (val == null) continue;
+
+                // string[] — join directly
                 string[] sarr = val as string[];
                 if (sarr != null) return string.Join("; ", sarr);
+
+                // ClassificationPropertyValue[] — extract the inner Value field from each element
+                Array objArr = val as Array;
+                if (objArr != null && objArr.Length > 0)
+                {
+                    var parts = new List<string>();
+                    foreach (object elem in objArr)
+                    {
+                        if (elem == null) continue;
+                        // Try a "Value" field first, then ToString
+                        FieldInfo vf = elem.GetType().GetField("Value", BindingFlags.Public | BindingFlags.Instance);
+                        string s = vf != null ? vf.GetValue(elem)?.ToString() : elem.ToString();
+                        if (!string.IsNullOrEmpty(s)) parts.Add(s);
+                    }
+                    if (parts.Count > 0) return string.Join("; ", parts);
+                    continue; // array was all nulls — try next field name
+                }
+
                 return val.ToString();
             }
             return null;

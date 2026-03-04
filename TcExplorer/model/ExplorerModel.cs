@@ -11,9 +11,10 @@ namespace TcExplorer.Model
 
     public class DatasetInfo
     {
-        public string Uid  { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
+        public string Uid      { get; set; }
+        public string Name     { get; set; }
+        public string Type     { get; set; }
+        public string Relation { get; set; }
     }
 
     public class ClassifiedObject
