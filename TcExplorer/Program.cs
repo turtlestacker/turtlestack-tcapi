@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Teamcenter.ClientX;
 using TcExplorer.Explore;
@@ -16,7 +17,7 @@ namespace TcExplorer
         {
             if (args.Length > 0 && (args[0].Equals("-help") || args[0].Equals("-h")))
             {
-                Console.WriteLine("usage: TcExplorer [-host HostAddress] [-sso SsoURL -appID AppID] [-out OutputFile]");
+                Console.WriteLine("usage: TcExplorer [-host HostAddress] [-sso SsoURL -appID AppID] [-out OutputFile] [-limit N]");
                 Console.WriteLine("Where:");
                 Console.WriteLine("   host:   Address of the Teamcenter server, e.g. http://localhost:7001/tc");
                 Console.WriteLine("           TCCS: tccs://env_name  or  tccs (query available environments)");
@@ -24,6 +25,7 @@ namespace TcExplorer
                 Console.WriteLine("   sso:    SSO URL (if using Single Sign-On)");
                 Console.WriteLine("   appID:  SSO application ID");
                 Console.WriteLine("   out:    Output JSON file path (default: tc_explorer_output.json)");
+                Console.WriteLine("   limit:  Stop after N classification nodes (0 = unlimited, default: 0)");
                 return;
             }
 
@@ -32,27 +34,54 @@ namespace TcExplorer
             string ssoURL     = Session.GetOptionalArg(arguments, "-sso",   "");
             string appID      = Session.GetOptionalArg(arguments, "-appID", "");
             string outPath    = Session.GetOptionalArg(arguments, "-out",   "tc_explorer_output.json");
+            string limitStr   = Session.GetOptionalArg(arguments, "-limit", "0");
+            int    nodeLimit  = 0;
+            int.TryParse(limitStr, out nodeLimit);
+
+            var totalTimer = Stopwatch.StartNew();
 
             try
             {
+                // ── Login ────────────────────────────────────────────────────────
+                var sw = Stopwatch.StartNew();
                 Session session = new Session(serverHost, ssoURL, appID);
-
                 User user = session.login();
+                sw.Stop();
+
                 if (user == null)
                 {
                     Console.WriteLine("Login cancelled or failed. Exiting.");
                     return;
                 }
+                Console.WriteLine($"[TIMING] Login:              {sw.Elapsed.TotalSeconds:F2}s");
 
                 ExplorerResult result = new ExplorerResult();
 
+                // ── Folder tree ──────────────────────────────────────────────────
+                sw.Restart();
                 result.FolderTree = new FolderExplorer(Session.getConnection()).BuildTree(user);
+                sw.Stop();
+                Console.WriteLine($"[TIMING] Folder tree:        {sw.Elapsed.TotalSeconds:F2}s");
 
-                result.ClassificationTree = new ClassificationExplorer(Session.getConnection()).BuildHierarchy();
+                // ── Classification hierarchy ─────────────────────────────────────
+                sw.Restart();
+                var classExplorer = new ClassificationExplorer(Session.getConnection());
+                if (nodeLimit > 0)
+                    Console.WriteLine($"[INFO]   Classification node limit: {nodeLimit}");
+                result.ClassificationTree = classExplorer.BuildHierarchy(nodeLimit);
+                sw.Stop();
+                Console.WriteLine($"[TIMING] Classification:     {sw.Elapsed.TotalSeconds:F2}s");
+                classExplorer.PrintCallStats();
 
+                // ── Render + export ──────────────────────────────────────────────
+                sw.Restart();
                 new ConsoleRenderer().Render(result);
-
                 new JsonExporter().Export(result, outPath);
+                sw.Stop();
+                Console.WriteLine($"[TIMING] Render + export:    {sw.Elapsed.TotalSeconds:F2}s");
+
+                totalTimer.Stop();
+                Console.WriteLine($"[TIMING] Total elapsed:      {totalTimer.Elapsed.TotalSeconds:F2}s");
 
                 session.logout();
             }

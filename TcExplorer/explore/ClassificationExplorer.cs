@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Teamcenter.Services.Strong.Classification;
 using Teamcenter.Soa.Client;
@@ -20,13 +21,24 @@ namespace TcExplorer.Explore
         private readonly Connection _connection;
         private const int MaxDepth = 30;
 
+        // Call-count and timing accumulators
+        private int    _childrenCalls;
+        private int    _attributeCalls;
+        private double _childrenMs;
+        private double _attributeMs;
+        private int    _nodesProcessed;
+
         public ClassificationExplorer(Connection connection)
         {
             _connection = connection;
         }
 
-        public List<ClassNode> BuildHierarchy()
+        /// <summary>Build the full classification hierarchy, stopping after <paramref name="nodeLimit"/> nodes (0 = unlimited).</summary>
+        public List<ClassNode> BuildHierarchy(int nodeLimit = 0)
         {
+            _childrenCalls = _attributeCalls = _nodesProcessed = 0;
+            _childrenMs    = _attributeMs    = 0;
+
             try
             {
                 Teamcenter.Soa.Client.Model.StrongObjectFactoryClassification.Init();
@@ -44,7 +56,6 @@ namespace TcExplorer.Explore
 
                 // Step 2: get details for top-level nodes
                 // NodeDetails hashtable: key = Cls0HierarchyNode, value = HierarchyNodeDetails[]
-                // (same structure as getHierarchyNodeChildren)
                 var detailsResp = cls0Service.GetHierarchyNodeDetails(topResp.TopLevelNodes);
                 if (detailsResp == null || detailsResp.NodeDetails == null)
                     return new List<ClassNode>();
@@ -52,19 +63,17 @@ namespace TcExplorer.Explore
                 var topDetails = new List<Cls0NodeDetails>();
                 foreach (DictionaryEntry entry in detailsResp.NodeDetails)
                 {
-                    // Value is HierarchyNodeDetails[] (confirmed via runtime diagnostics)
                     Cls0NodeDetails[] arr = entry.Value as Cls0NodeDetails[];
                     if (arr != null)
                         foreach (var d in arr) topDetails.Add(d);
                     else
                     {
-                        // Fallback: single HierarchyNodeDetails (not in an array)
                         Cls0NodeDetails single = entry.Value as Cls0NodeDetails;
                         if (single != null) topDetails.Add(single);
                     }
                 }
 
-                return BuildFromDetails(cls0Service, classicSvc, topDetails, 0);
+                return BuildFromDetails(cls0Service, classicSvc, topDetails, 0, nodeLimit);
             }
             catch (Exception e)
             {
@@ -73,13 +82,19 @@ namespace TcExplorer.Explore
             }
         }
 
-        // Recursively build ClassNodes from a flat list of HierarchyNodeDetails.
-        // Children come back as HierarchyNodeDetails[] from GetHierarchyNodeChildren,
-        // so we never need to call GetHierarchyNodeDetails again after the top level.
+        public void PrintCallStats()
+        {
+            Console.WriteLine($"[STATS]  Classification nodes processed: {_nodesProcessed}");
+            Console.WriteLine($"[STATS]  GetHierarchyNodeChildren calls: {_childrenCalls}  ({_childrenMs:F0} ms total, avg {(_childrenCalls > 0 ? _childrenMs / _childrenCalls : 0):F0} ms/call)");
+            Console.WriteLine($"[STATS]  GetAttributesForClasses calls:  {_attributeCalls}  ({_attributeMs:F0} ms total, avg {(_attributeCalls > 0 ? _attributeMs / _attributeCalls : 0):F0} ms/call)");
+        }
+
+        // Recursively build ClassNodes. Returns early once nodeLimit is reached.
         private List<ClassNode> BuildFromDetails(Cls0ClassSvc cls0Service,
                                                  ClassificationService classicSvc,
                                                  List<Cls0NodeDetails> details,
-                                                 int depth)
+                                                 int depth,
+                                                 int nodeLimit)
         {
             var result = new List<ClassNode>();
             if (details == null || details.Count == 0 || depth > MaxDepth)
@@ -88,6 +103,14 @@ namespace TcExplorer.Explore
             foreach (Cls0NodeDetails d in details)
             {
                 if (d == null) continue;
+                if (nodeLimit > 0 && _nodesProcessed >= nodeLimit)
+                {
+                    Console.WriteLine($"[INFO]   Node limit ({nodeLimit}) reached — stopping.");
+                    return result;
+                }
+
+                _nodesProcessed++;
+                Console.Write($"\r[PROGRESS] Classification nodes: {_nodesProcessed}" + (nodeLimit > 0 ? $"/{nodeLimit}" : "") + "   ");
 
                 var classNode = new ClassNode
                 {
@@ -97,9 +120,9 @@ namespace TcExplorer.Explore
 
                 if (!string.IsNullOrEmpty(d.NodeId))
                 {
-                    try { classNode.Attributes = GetAttributes(classicSvc, d.NodeId); }
+                    try { classNode.Attributes = TimedGetAttributes(classicSvc, d.NodeId); }
                     catch (Exception e)
-                    { Console.WriteLine("[WARN] Attributes for " + d.NodeId + ": " + e.Message); }
+                    { Console.WriteLine("\n[WARN] Attributes for " + d.NodeId + ": " + e.Message); }
                 }
 
                 // d.NodeToUpdate is the Cls0HierarchyNode needed to query children
@@ -107,17 +130,37 @@ namespace TcExplorer.Explore
                 {
                     try
                     {
-                        List<Cls0NodeDetails> childDetails = FetchChildDetails(cls0Service, d.NodeToUpdate);
+                        List<Cls0NodeDetails> childDetails = TimedFetchChildDetails(cls0Service, d.NodeToUpdate);
                         if (childDetails.Count > 0)
-                            classNode.Children = BuildFromDetails(cls0Service, classicSvc, childDetails, depth + 1);
+                            classNode.Children = BuildFromDetails(cls0Service, classicSvc, childDetails, depth + 1, nodeLimit);
                     }
                     catch (Exception e)
-                    { Console.WriteLine("[WARN] Children for " + d.NodeId + ": " + e.Message); }
+                    { Console.WriteLine("\n[WARN] Children for " + d.NodeId + ": " + e.Message); }
                 }
 
                 result.Add(classNode);
             }
 
+            return result;
+        }
+
+        private List<Cls0NodeDetails> TimedFetchChildDetails(Cls0ClassSvc service, Cls0HierarchyNode parentNode)
+        {
+            var sw = Stopwatch.StartNew();
+            var result = FetchChildDetails(service, parentNode);
+            sw.Stop();
+            _childrenCalls++;
+            _childrenMs += sw.Elapsed.TotalMilliseconds;
+            return result;
+        }
+
+        private List<ClassAttribute> TimedGetAttributes(ClassificationService service, string classId)
+        {
+            var sw = Stopwatch.StartNew();
+            var result = GetAttributes(service, classId);
+            sw.Stop();
+            _attributeCalls++;
+            _attributeMs += sw.Elapsed.TotalMilliseconds;
             return result;
         }
 
