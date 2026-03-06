@@ -175,7 +175,9 @@ namespace SymbolDetective.Detect
             ModelObject parentObj = GetParentItem(obj, symbolId);
             if (parentObj != null)
             {
-                try { _dmService.GetProperties(new[] { parentObj }, CoreProps); }
+                // Load core props AND IMAN_classification on the parent item
+                var parentPropsToLoad = new List<string>(CoreProps) { "IMAN_classification" };
+                try { _dmService.GetProperties(new[] { parentObj }, parentPropsToLoad.ToArray()); }
                 catch { }
 
                 report.ParentItem = new ParentItemInfo
@@ -201,6 +203,27 @@ namespace SymbolDetective.Detect
 
                 report.ParentItem.Properties.Sort((a, b) =>
                     string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
+
+                // Check IMAN_classification on the parent item — classification is often
+                // applied at Item level rather than ItemRevision level in TC
+                try
+                {
+                    Property clsProp = parentObj.GetProperty("IMAN_classification");
+                    ModelObject[] parentIcos = clsProp?.ModelObjectArrayValue;
+                    if (parentIcos != null && parentIcos.Length > 0)
+                    {
+                        Console.WriteLine($"[INFO] Parent item has {parentIcos.Length} ICO(s) — classification is at Item level.");
+                        foreach (var ico in parentIcos) icoObjects.Add(ico);
+                    }
+                    else
+                    {
+                        Console.WriteLine("[INFO] Parent item also has no IMAN_classification links.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[WARN] IMAN_classification on parent item: {e.Message}");
+                }
             }
             else
             {
@@ -210,12 +233,12 @@ namespace SymbolDetective.Detect
             // ── Step 6: Classification ────────────────────────────────────────────
             if (icoObjects.Count > 0)
             {
-                Console.WriteLine($"[INFO] Found {icoObjects.Count} ICO(s) — loading classification data...");
+                Console.WriteLine($"[INFO] Found {icoObjects.Count} ICO(s) total — loading classification data...");
                 report.Classifications = LoadClassification(icoObjects);
             }
             else
             {
-                Console.WriteLine("[INFO] No IMAN_classification links found — symbol may not be classified.");
+                Console.WriteLine("[INFO] No IMAN_classification links found on revision or parent item — symbol is not classified.");
             }
 
             return report;
