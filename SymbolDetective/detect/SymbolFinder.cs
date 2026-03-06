@@ -77,6 +77,56 @@ namespace SymbolDetective.Detect
             return result;
         }
 
+        /// <summary>
+        /// Returns loaded ModelObjects matching the given object name and revision.
+        /// Uses the "Name" / "object_name" entry instead of "Item ID".
+        /// </summary>
+        public ModelObject[] FindByName(string name, string revision)
+        {
+            SavedQueryService queryService = SavedQueryService.getService(_connection);
+
+            Console.WriteLine("[INFO] Loading saved queries from server...");
+            GetSavedQueriesResponse savedQueries = queryService.GetSavedQueries();
+
+            if (savedQueries?.Queries == null || savedQueries.Queries.Length == 0)
+            {
+                Console.WriteLine("[WARN] No saved queries found on this server.");
+                return null;
+            }
+
+            Console.WriteLine($"[INFO] {savedQueries.Queries.Length} saved quer(ies) available.");
+
+            // Try Item Revision queries with Name entry
+            ModelObject[] result =
+                TryQuery(queryService, savedQueries, "Item Revision...",
+                    new[] { "Name", "Revision" }, new[] { name, revision })
+                ??
+                TryQuery(queryService, savedQueries, "Item Revision",
+                    new[] { "Name", "Revision" }, new[] { name, revision })
+                ??
+                TryQuery(queryService, savedQueries, "Item Revision...",
+                    new[] { "object_name", "item_revision_id" }, new[] { name, revision })
+                ??
+                // Wildcard fallback — search name only
+                TryQuery(queryService, savedQueries, "Item Revision...",
+                    new[] { "Name" }, new[] { name })
+                ??
+                TryQuery(queryService, savedQueries, "Item...",
+                    new[] { "Name" }, new[] { name })
+                ??
+                TryQuery(queryService, savedQueries, "Item",
+                    new[] { "Name" }, new[] { name });
+
+            if (result == null)
+            {
+                Console.WriteLine("[WARN] Could not find a matching saved query. Available queries on this server:");
+                foreach (var q in savedQueries.Queries)
+                    Console.WriteLine($"  - \"{q.Name}\"");
+            }
+
+            return result;
+        }
+
         private ModelObject[] TryQuery(
             SavedQueryService          queryService,
             GetSavedQueriesResponse    savedQueries,

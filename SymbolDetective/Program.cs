@@ -8,6 +8,7 @@ using SymbolDetective.Detect;
 using SymbolDetective.Model;
 using SymbolDetective.Output;
 
+using Teamcenter.Soa.Client.Model;
 using User = Teamcenter.Soa.Client.Model.Strong.User;
 
 namespace SymbolDetective
@@ -26,7 +27,8 @@ namespace SymbolDetective
                 Console.WriteLine("   sso:     SSO URL (if using Single Sign-On)");
                 Console.WriteLine("   appID:   SSO application ID");
                 Console.WriteLine("   symbol:  Item ID of the symbol to investigate");
-                Console.WriteLine("            (default: forklift_truck_symbol_1)");
+                Console.WriteLine("   name:    Object name to search for (used when -symbol not given)");
+                Console.WriteLine("            (default: 3Way valve general)");
                 Console.WriteLine("   rev:     Revision to search for (default: A)");
                 Console.WriteLine("   out:     Output JSON file path");
                 Console.WriteLine("            (default: output/symbol_detective_output.json)");
@@ -37,7 +39,8 @@ namespace SymbolDetective
             string serverHost = Session.GetOptionalArg(arguments, "-host",   "http://localhost:7001/tc");
             string ssoURL     = Session.GetOptionalArg(arguments, "-sso",    "");
             string appID      = Session.GetOptionalArg(arguments, "-appID",  "");
-            string symbolId   = Session.GetOptionalArg(arguments, "-symbol", "forklift_truck_symbol_1");
+            string symbolId   = Session.GetOptionalArg(arguments, "-symbol", "");
+            string symbolName = Session.GetOptionalArg(arguments, "-name",   "3Way valve general");
             string revision   = Session.GetOptionalArg(arguments, "-rev",    "A");
             string outPath    = Session.GetOptionalArg(arguments, "-out",    "output/symbol_detective_output.json");
 
@@ -60,15 +63,27 @@ namespace SymbolDetective
 
                 // ── Find the symbol ──────────────────────────────────────────────
                 sw.Restart();
-                Console.WriteLine($"\n[INFO] Searching for: item_id=\"{symbolId}\"  revision=\"{revision}\"");
-                var finder       = new SymbolFinder(Session.getConnection());
-                var foundObjects = finder.Find(symbolId, revision);
+                var finder = new SymbolFinder(Session.getConnection());
+                ModelObject[] foundObjects;
+                string searchLabel;
+                if (!string.IsNullOrEmpty(symbolId))
+                {
+                    Console.WriteLine($"\n[INFO] Searching by item_id=\"{symbolId}\"  revision=\"{revision}\"");
+                    foundObjects = finder.Find(symbolId, revision);
+                    searchLabel  = symbolId;
+                }
+                else
+                {
+                    Console.WriteLine($"\n[INFO] Searching by name=\"{symbolName}\"  revision=\"{revision}\"");
+                    foundObjects = finder.FindByName(symbolName, revision);
+                    searchLabel  = symbolName;
+                }
                 sw.Stop();
                 Console.WriteLine($"[TIMING] Search: {sw.Elapsed.TotalSeconds:F2}s");
 
                 if (foundObjects == null || foundObjects.Length == 0)
                 {
-                    Console.WriteLine($"[WARN] No objects found. Check query names printed above, or adjust -symbol / -rev.");
+                    Console.WriteLine($"[WARN] No objects found. Check query names printed above, or adjust -symbol / -name / -rev.");
                     session.logout();
                     return;
                 }
@@ -78,7 +93,7 @@ namespace SymbolDetective
                 // ── Inspect ──────────────────────────────────────────────────────
                 sw.Restart();
                 var inspector = new SymbolInspector(Session.getConnection());
-                SymbolReport report = inspector.Inspect(foundObjects[0], symbolId, revision);
+                SymbolReport report = inspector.Inspect(foundObjects[0], searchLabel, revision);
                 sw.Stop();
                 Console.WriteLine($"[TIMING] Inspect: {sw.Elapsed.TotalSeconds:F2}s");
 
