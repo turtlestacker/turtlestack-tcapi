@@ -707,16 +707,56 @@ namespace SymbolDetective.Detect
                     foreach (object elem in objArr)
                     {
                         if (elem == null) continue;
-                        FieldInfo vf = elem.GetType().GetField("Value", BindingFlags.Public | BindingFlags.Instance);
-                        string s = vf != null ? vf.GetValue(elem)?.ToString() : elem.ToString();
+                        string s = ExtractAnyStringValue(elem);
                         if (!string.IsNullOrEmpty(s)) parts.Add(s);
                     }
                     if (parts.Count > 0) return string.Join("; ", parts);
                     continue;
                 }
 
-                return val.ToString();
+                // Scalar — try to extract a meaningful string via reflection
+                string scalarStr = ExtractAnyStringValue(val);
+                if (scalarStr != null) return scalarStr;
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Given any object (typically a ClassificationPropertyValue), reflect over
+        /// all public instance fields to find the first non-empty string value.
+        /// Falls back to ToString() only if it doesn't look like a type name.
+        /// </summary>
+        private static string ExtractAnyStringValue(object obj)
+        {
+            if (obj == null) return null;
+
+            // Already a primitive string
+            if (obj is string s) return string.IsNullOrEmpty(s) ? null : s;
+
+            Type t = obj.GetType();
+
+            // Try well-known field names first
+            foreach (string candidate in new[] { "Value", "InternalValue", "DisplayValue", "StringValue", "RawValue" })
+            {
+                FieldInfo f = t.GetField(candidate, BindingFlags.Public | BindingFlags.Instance);
+                if (f == null) continue;
+                object v = f.GetValue(obj);
+                if (v is string sv && !string.IsNullOrEmpty(sv)) return sv;
+            }
+
+            // Reflect all public fields — return first non-empty string
+            foreach (FieldInfo fi in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (fi.FieldType != typeof(string)) continue;
+                string v = fi.GetValue(obj) as string;
+                if (!string.IsNullOrEmpty(v)) return v;
+            }
+
+            // Last resort: ToString() but only if it doesn't look like a type name
+            string ts = obj.ToString();
+            if (!string.IsNullOrEmpty(ts) && !ts.Contains(".Classification.") && ts != t.FullName)
+                return ts;
+
             return null;
         }
     }
