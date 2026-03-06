@@ -1,9 +1,9 @@
 ﻿{
-  "SymbolItemId": "forklift_truck_symbol_1",
+  "SymbolItemId": "3Way valve general",
   "SymbolRevision": "A",
-  "Uid": "hNMAQ838puMr7D",
-  "Name": "forklift_truck_symbol_1/A-forklift_truck_symbol",
-  "Type": "PLM4SymbolRevision",
+  "Uid": "$2NAQUQNpuMr7D",
+  "Name": "3Way valve General/A",
+  "Type": "PLM4EquipmentRevision",
   "Properties": [
     {
       "Name": "checked_out",
@@ -11,7 +11,7 @@
     },
     {
       "Name": "item_id",
-      "Value": "forklift_truck_symbol_1"
+      "Value": "3Way valve General"
     },
     {
       "Name": "item_revision_id",
@@ -19,124 +19,478 @@
     },
     {
       "Name": "object_name",
-      "Value": "forklift_truck_symbol"
+      "Value": "3Way valve General"
     },
     {
       "Name": "object_string",
-      "Value": "forklift_truck_symbol_1/A-forklift_truck_symbol"
+      "Value": "3Way valve General/A"
     },
     {
       "Name": "object_type",
-      "Value": "PLM4SymbolRevision"
+      "Value": "PLM4EquipmentRevision"
     }
   ],
   "Relations": [
     {
-      "Uid": "gfHAQ838puMr7D",
-      "Name": "forklift_truck_symbol",
-      "Type": "UGMASTER",
-      "Relation": "IMAN_specification",
+      "Uid": "PPJAQUQNpuMr7D",
+      "Name": "",
+      "Type": "Icm0",
+      "Relation": "IMAN_classification",
       "Properties": [
-        {
-          "Name": "object_name",
-          "Value": "forklift_truck_symbol"
-        },
-        {
-          "Name": "object_string",
-          "Value": "forklift_truck_symbol"
-        },
-        {
-          "Name": "object_type",
-          "Value": "UGMASTER"
-        }
-      ],
-      "Files": [
-        {
-          "Uid": "xzJAQ838puMr7D",
-          "FileName": "qafmetadata.qaf",
-          "FileType": "ImanFile",
-          "FileLocation": ""
-        },
-        {
-          "Uid": "x3EAQ838puMr7D",
-          "FileName": "images_preview.qaf",
-          "FileType": "ImanFile",
-          "FileLocation": ""
-        }
-      ]
-    },
-    {
-      "Uid": "gnEAQ838puMr7D",
-      "Name": "SymbolImageFiles",
-      "Type": "Image",
-      "Relation": "IMAN_specification",
-      "Properties": [
-        {
-          "Name": "object_name",
-          "Value": "SymbolImageFiles"
-        },
-        {
-          "Name": "object_string",
-          "Value": "SymbolImageFiles"
-        },
-        {
-          "Name": "object_type",
-          "Value": "Image"
-        }
-      ],
-      "Files": [
-    ]
-  },
-  {
-    "Uid": "grPAQ838puMr7D",
-    "Name": "SymbolFiles",
-    "Type": "Text",
-    "Relation": "IMAN_specification",
-    "Properties": [
-      {
-        "Name": "object_name",
-        "Value": "SymbolFiles"
-      },
-      {
-        "Name": "object_string",
-        "Value": "SymbolFiles"
-      },
-      {
-        "Name": "object_type",
-        "Value": "Text"
-      }
     ],
     "Files": [
   ]
 }
 ],
 "Classifications": [
+{
+  "IcoUid": "PPJAQUQNpuMr7D",
+  "ClassId": "SMR_on_or_off_valve",
+  "Attributes": [
+    {
+      "Name": "-615",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-616",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-617",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-618",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-619",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-571",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-572",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-600",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-607",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "-732",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "DISPLAY_NAME",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "UNIT",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "IS_GENERIC_SYMBOL",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "SYMBOL_DEFINITION_FILE",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "SYMBOL_PREVIEW_FILE",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "CUSTOM_SYMBOL_FILE",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "PART_NUMBER",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "PART_REVISION",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "PART_NAME",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "MEMBER_NAME",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "SYMBOL_OBJECT_ID",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Structure Code (++)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "cccCCCInfo",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDSPP Location Code",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Product Code Number",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Name in FBOM",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "cccSPVInfo",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP System Code (=)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "cccCCC",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "cccPGV",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Island Code (Main System)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "cccSPV",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Part Type",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP System Code Number",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "RDS-PP Further Product Code",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "P and ID Reference",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Space Number",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "cccActivePassive",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Basic Function Code Number",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "RDS-PP Basic Function Code",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Sub Type",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "System Name",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Operating Equipment Code",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Product Code (-)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "RDS-PP Further Product Code Number",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Security Classifications",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Security Integrity",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Safeguards Classification",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Reliability",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Environmental Classification",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Associated Safety Function",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Fire Resistance",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Safety Classification",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Safety Function Category",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Security Category",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Mass Flow Rate Range",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Inlet Bore (DN)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Supplied From Details 1",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "ASME QME-1 Qualification Category",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Valve Sealing Direction",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Supplied From",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Nameplate Rating",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Autonomy Time (SBO)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Duty Operation Mode 1",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Secondary Actuation Method",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Allowable closing time",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Design Temperature",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Duty Operation Mode 5A",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Working Fluid",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Load category",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Load Duty Operation Mode 4A",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Allowable opening time",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Duty Operation Mode 3",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "NRC RG 1.26 Code Class",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "End of Life (Maximum) Seat Leakage",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Power Factor",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Factor",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Supply Voltage Category",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Outlet Pressure (Range)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Control",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Supplied From Details 3",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Absorbed Power",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Duty Operation Mode 4B",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Inlet Pressure (Range)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Design Pressure",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Duty Operation Mode 6A",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Supplied From Details 2",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Maximum K factor",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Outlet Bore (DN)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Electrical consumer",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Primary Actuation Method",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Essential supply",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Position Indication",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Electrical_consumer",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Autonomy Time (LOOP)",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Type",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Load Duty Operation Mode 6B",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Operating Pressure",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "Load Duty Operation Mode 5B",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Supply Type",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Load Duty Operation Mode 2",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Operating Temperature",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    },
+    {
+      "Name": "System Material Spec",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+    },
+    {
+      "Name": "Supply Voltage",
+      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+    }
+  ]
+}
 ],
 "ParentItem": {
-"Uid": "hNGAQ838puMr7D",
-"Name": "forklift_truck_symbol_1-forklift_truck_symbol",
-"Type": "PLM4Symbol",
+"Uid": "$2HAQUQNpuMr7D",
+"Name": "3Way valve General",
+"Type": "PLM4Equipment",
 "Properties": [
-{
-  "Name": "checked_out",
-  "Value": " "
-},
-{
-  "Name": "item_id",
-  "Value": "forklift_truck_symbol_1"
-},
-{
-  "Name": "object_name",
-  "Value": "forklift_truck_symbol"
-},
-{
-  "Name": "object_string",
-  "Value": "forklift_truck_symbol_1-forklift_truck_symbol"
-},
-{
-  "Name": "object_type",
-  "Value": "PLM4Symbol"
-}
+  {
+    "Name": "checked_out",
+    "Value": " "
+  },
+  {
+    "Name": "item_id",
+    "Value": "3Way valve General"
+  },
+  {
+    "Name": "object_name",
+    "Value": "3Way valve General"
+  },
+  {
+    "Name": "object_string",
+    "Value": "3Way valve General"
+  },
+  {
+    "Name": "object_type",
+    "Value": "PLM4Equipment"
+  }
 ]
 }
 }
