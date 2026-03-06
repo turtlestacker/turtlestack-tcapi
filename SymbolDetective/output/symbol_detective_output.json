@@ -3,7 +3,7 @@
   "SymbolRevision": "A",
   "Uid": "hNMAQ838puMr7D",
   "Name": "forklift_truck_symbol_1/A-forklift_truck_symbol",
-  "Type": "ItemRevision",
+  "Type": "PLM4SymbolRevision",
   "Properties": [
     {
       "Name": "checked_out",
@@ -16,10 +16,6 @@
     {
       "Name": "item_revision_id",
       "Value": "A"
-    },
-    {
-      "Name": "object_desc",
-      "Value": ""
     },
     {
       "Name": "object_name",
@@ -52,10 +48,20 @@
         {
           "Name": "object_type",
           "Value": "UGMASTER"
+        }
+      ],
+      "Files": [
+        {
+          "Uid": "xzJAQ838puMr7D",
+          "FileName": "qafmetadata.qaf",
+          "FileType": "ImanFile",
+          "FileLocation": ""
         },
         {
-          "Name": "object_desc",
-          "Value": ""
+          "Uid": "x3EAQ838puMr7D",
+          "FileName": "images_preview.qaf",
+          "FileType": "ImanFile",
+          "FileLocation": ""
         }
       ]
     },
@@ -76,39 +82,61 @@
         {
           "Name": "object_type",
           "Value": "Image"
-        },
-        {
-          "Name": "object_desc",
-          "Value": ""
         }
-      ]
-    },
-    {
-      "Uid": "grPAQ838puMr7D",
-      "Name": "SymbolFiles",
-      "Type": "Text",
-      "Relation": "IMAN_specification",
-      "Properties": [
-        {
-          "Name": "object_name",
-          "Value": "SymbolFiles"
-        },
-        {
-          "Name": "object_string",
-          "Value": "SymbolFiles"
-        },
-        {
-          "Name": "object_type",
-          "Value": "Text"
-        },
-        {
-          "Name": "object_desc",
-          "Value": ""
-        }
-      ]
-    }
-  ],
-  "Classifications": [
+      ],
+      "Files": [
+    ]
+  },
+  {
+    "Uid": "grPAQ838puMr7D",
+    "Name": "SymbolFiles",
+    "Type": "Text",
+    "Relation": "IMAN_specification",
+    "Properties": [
+      {
+        "Name": "object_name",
+        "Value": "SymbolFiles"
+      },
+      {
+        "Name": "object_string",
+        "Value": "SymbolFiles"
+      },
+      {
+        "Name": "object_type",
+        "Value": "Text"
+      }
+    ],
+    "Files": [
+  ]
+}
 ],
-"ParentItem": null
+"Classifications": [
+],
+"ParentItem": {
+"Uid": "hNGAQ838puMr7D",
+"Name": "forklift_truck_symbol_1-forklift_truck_symbol",
+"Type": "PLM4Symbol",
+"Properties": [
+{
+  "Name": "checked_out",
+  "Value": " "
+},
+{
+  "Name": "item_id",
+  "Value": "forklift_truck_symbol_1"
+},
+{
+  "Name": "object_name",
+  "Value": "forklift_truck_symbol"
+},
+{
+  "Name": "object_string",
+  "Value": "forklift_truck_symbol_1-forklift_truck_symbol"
+},
+{
+  "Name": "object_type",
+  "Value": "PLM4Symbol"
+}
+]
+}
 }
