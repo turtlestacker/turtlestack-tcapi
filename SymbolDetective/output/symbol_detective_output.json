@@ -49,419 +49,419 @@
   "Attributes": [
     {
       "Name": "-615",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "infodba"
     },
     {
       "Name": "-616",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "20260204092857"
     },
     {
       "Name": "-617",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "dba"
     },
     {
       "Name": "-618",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "infodba"
     },
     {
       "Name": "-619",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "20260210142055"
     },
     {
       "Name": "-571",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "3Way valve General/A"
     },
     {
       "Name": "-572",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "3Way valve General"
     },
     {
       "Name": "-600",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "SMR_on_or_off_valve"
     },
     {
       "Name": "-607",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "on or off valve"
     },
     {
       "Name": "-732",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": ""
     },
     {
       "Name": "DISPLAY_NAME",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "3Way valve General"
     },
     {
       "Name": "UNIT",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "metric"
     },
     {
       "Name": "IS_GENERIC_SYMBOL",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "true"
     },
     {
       "Name": "SYMBOL_DEFINITION_FILE",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "SYMBOL_PREVIEW_FILE",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "CUSTOM_SYMBOL_FILE",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "PART_NUMBER",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "PART_REVISION",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "PART_NAME",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "MEMBER_NAME",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "SYMBOL_OBJECT_ID",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Structure Code (++)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "cccCCCInfo",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDSPP Location Code",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Product Code Number",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "0.0"
     },
     {
       "Name": "Name in FBOM",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "cccSPVInfo",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP System Code (=)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "cccCCC",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "cccPGV",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Island Code (Main System)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "cccSPV",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Part Type",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP System Code Number",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "0.0"
     },
     {
       "Name": "RDS-PP Further Product Code",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "P and ID Reference",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Space Number",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "0.0"
     },
     {
       "Name": "cccActivePassive",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Basic Function Code Number",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "0.0"
     },
     {
       "Name": "RDS-PP Basic Function Code",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Sub Type",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "System Name",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Operating Equipment Code",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Product Code (-)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "RDS-PP Further Product Code Number",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "0.0"
     },
     {
       "Name": "Security Classifications",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Security Integrity",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Safeguards Classification",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Reliability",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Environmental Classification",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Associated Safety Function",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Fire Resistance",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Safety Classification",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Safety Function Category",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Security Category",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Mass Flow Rate Range",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Inlet Bore (DN)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "15"
     },
     {
       "Name": "Supplied From Details 1",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "ASME QME-1 Qualification Category",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Valve Sealing Direction",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Supplied From",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Nameplate Rating",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Autonomy Time (SBO)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Duty Operation Mode 1",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Secondary Actuation Method",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Allowable closing time",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "Less than 2"
     },
     {
       "Name": "Design Temperature",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Duty Operation Mode 5A",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Working Fluid",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Load category",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Load Duty Operation Mode 4A",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Allowable opening time",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "Less than 2"
     },
     {
       "Name": "Load Duty Operation Mode 3",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "NRC RG 1.26 Code Class",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "End of Life (Maximum) Seat Leakage",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Power Factor",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "0.0"
     },
     {
       "Name": "Load Factor",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Supply Voltage Category",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Outlet Pressure (Range)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Control",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Supplied From Details 3",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Absorbed Power",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Duty Operation Mode 4B",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Inlet Pressure (Range)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Design Pressure",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Duty Operation Mode 6A",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Supplied From Details 2",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Maximum K factor",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Outlet Bore (DN)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "15"
     },
     {
       "Name": "Electrical consumer",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Primary Actuation Method",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Essential supply",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Position Indication",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Electrical_consumer",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Autonomy Time (LOOP)",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Type",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Load Duty Operation Mode 6B",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Operating Pressure",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "Load Duty Operation Mode 5B",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Supply Type",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Load Duty Operation Mode 2",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Operating Temperature",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "000000000.000000000"
     },
     {
       "Name": "System Material Spec",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue[]"
+      "Value": ""
     },
     {
       "Name": "Supply Voltage",
-      "Value": "Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationPropertyValue"
+      "Value": "11000 AC, 3 ph (ph-ph)"
     }
   ]
 }
