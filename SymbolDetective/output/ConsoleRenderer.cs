@@ -8,27 +8,29 @@ namespace SymbolDetective.Output
 {
     public class ConsoleRenderer
     {
-        private const int LabelWidth = 30;
+        private const int LabelWidth = 32;
 
         public void Render(SymbolReport report)
         {
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine();
-            Console.WriteLine(new string('═', 70));
-            Console.WriteLine($"  SYMBOL DETECTIVE REPORT");
+            Console.WriteLine(new string('═', 72));
+            Console.WriteLine("  SYMBOL DETECTIVE REPORT");
             Console.WriteLine($"  Symbol: {report.SymbolItemId}  Rev: {report.SymbolRevision}");
-            Console.WriteLine(new string('═', 70));
+            Console.WriteLine(new string('═', 72));
             Console.WriteLine($"  UID  : {report.Uid}");
             Console.WriteLine($"  Name : {report.Name}");
             Console.WriteLine($"  Type : {report.Type}");
 
             // ── Properties ────────────────────────────────────────────────────
             Section("PROPERTIES", report.Properties.Count);
+            if (report.Properties.Count == 0)
+                Console.WriteLine("  (none returned by server)");
             foreach (var pv in report.Properties)
                 Console.WriteLine($"  {Pad(pv.Name)}  {pv.Value}");
 
             // ── Relations ─────────────────────────────────────────────────────
-            Section("RELATIONS", report.Relations.Count);
+            Section("RELATIONS & DATASETS", report.Relations.Count);
             if (report.Relations.Count == 0)
             {
                 Console.WriteLine("  (none found)");
@@ -44,10 +46,23 @@ namespace SymbolDetective.Output
                         Console.WriteLine($"  ── {ro.Relation} ──");
                         lastRel = ro.Relation;
                     }
-                    Console.WriteLine($"    [{ro.Type}]  {ro.Name}  (uid={ro.Uid})");
+                    Console.WriteLine($"    [{ro.Type}]  \"{ro.Name}\"  uid={ro.Uid}");
+
                     foreach (var pv in ro.Properties)
                         if (!string.IsNullOrEmpty(pv.Value))
                             Console.WriteLine($"      {Pad(pv.Name)}  {pv.Value}");
+
+                    if (ro.Files != null && ro.Files.Count > 0)
+                    {
+                        Console.WriteLine($"      Files ({ro.Files.Count}):");
+                        foreach (var f in ro.Files)
+                        {
+                            string loc = string.IsNullOrEmpty(f.FileLocation)
+                                ? ""
+                                : $"  @ {f.FileLocation}";
+                            Console.WriteLine($"        [{f.FileType}]  \"{f.FileName}\"  uid={f.Uid}{loc}");
+                        }
+                    }
                 }
             }
 
@@ -55,14 +70,14 @@ namespace SymbolDetective.Output
             Section("CLASSIFICATION", report.Classifications.Count);
             if (report.Classifications.Count == 0)
             {
-                Console.WriteLine("  (not classified, or IMAN_classification returned no links)");
+                Console.WriteLine("  (not classified — IMAN_classification returned no links)");
             }
             else
             {
                 foreach (var ce in report.Classifications)
                 {
                     Console.WriteLine();
-                    Console.WriteLine($"  ICO uid : {ce.IcoUid}");
+                    Console.WriteLine($"  ICO UID : {ce.IcoUid}");
                     Console.WriteLine($"  Class   : {ce.ClassId}");
                     if (ce.Attributes.Count > 0)
                     {
@@ -81,7 +96,7 @@ namespace SymbolDetective.Output
             Section("PARENT ITEM", report.ParentItem != null ? 1 : 0);
             if (report.ParentItem == null)
             {
-                Console.WriteLine("  (items_tag not populated — parent item not retrieved)");
+                Console.WriteLine("  (could not be resolved — see [WARN] messages above)");
             }
             else
             {
@@ -94,15 +109,15 @@ namespace SymbolDetective.Output
             }
 
             Console.WriteLine();
-            Console.WriteLine(new string('═', 70));
+            Console.WriteLine(new string('═', 72));
         }
 
         private static void Section(string title, int count)
         {
             Console.WriteLine();
-            Console.WriteLine(new string('─', 70));
+            Console.WriteLine(new string('─', 72));
             Console.WriteLine($"  {title}  ({count})");
-            Console.WriteLine(new string('─', 70));
+            Console.WriteLine(new string('─', 72));
         }
 
         private static string Pad(string s)

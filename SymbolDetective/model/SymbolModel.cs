@@ -9,6 +9,15 @@ namespace SymbolDetective.Model
         public string Value { get; set; }
     }
 
+    /// <summary>A named-reference file discovered inside a Dataset via ref_list.</summary>
+    public class DatasetFile
+    {
+        public string Uid          { get; set; }
+        public string FileName     { get; set; }  // original_file_name
+        public string FileType     { get; set; }  // object_type (e.g. "ImanFile")
+        public string FileLocation { get; set; }  // file_location if available
+    }
+
     /// <summary>A TC object related to the symbol via a named GRM relation.</summary>
     public class RelatedObject
     {
@@ -16,8 +25,10 @@ namespace SymbolDetective.Model
         public string Name     { get; set; }
         public string Type     { get; set; }
         public string Relation { get; set; }
-        /// <summary>Properties loaded from the related object itself.</summary>
-        public List<PropValue> Properties { get; set; } = new List<PropValue>();
+        /// <summary>Scalar properties loaded from the related object.</summary>
+        public List<PropValue>  Properties { get; set; } = new List<PropValue>();
+        /// <summary>Files discovered via ref_list on this object (for Dataset types).</summary>
+        public List<DatasetFile> Files     { get; set; } = new List<DatasetFile>();
     }
 
     /// <summary>A classification instance (ICO) the symbol belongs to.</summary>
@@ -47,7 +58,7 @@ namespace SymbolDetective.Model
         public string Name           { get; set; }
         public string Type           { get; set; }
 
-        /// <summary>All scalar/string properties loaded on the revision object.</summary>
+        /// <summary>All scalar properties loaded on the revision object.</summary>
         public List<PropValue>     Properties      { get; set; } = new List<PropValue>();
 
         /// <summary>All relation properties that returned one or more TC objects.</summary>
@@ -56,7 +67,7 @@ namespace SymbolDetective.Model
         /// <summary>Classification instances (ICOs) the symbol revision is classified under.</summary>
         public List<ClassEntry>    Classifications { get; set; } = new List<ClassEntry>();
 
-        /// <summary>Parent Item properties (the item_id level, not the revision).</summary>
+        /// <summary>Parent Item properties (item_id level, not the revision).</summary>
         public ParentItemInfo      ParentItem      { get; set; }
     }
 }
