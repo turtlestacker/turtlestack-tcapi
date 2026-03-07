@@ -5,6 +5,7 @@ using System.Reflection;
 
 using Teamcenter.Services.Strong.Classification;
 using Teamcenter.Services.Strong.Core;
+using Teamcenter.Services.Strong.Core._2007_09.DataManagement;
 using Teamcenter.Services.Strong.Query;
 using Teamcenter.Services.Strong.Query._2006_03.SavedQuery;
 using Teamcenter.Soa.Client;
@@ -14,7 +15,7 @@ using SymbolDetective.Model;
 
 using ClsObject = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassificationObject;
 using ClassAttr = Teamcenter.Services.Strong.Classification._2007_01.Classification.ClassAttribute;
-using ImanQuery           = Teamcenter.Soa.Client.Model.Strong.ImanQuery;
+using ImanQuery            = Teamcenter.Soa.Client.Model.Strong.ImanQuery;
 using SavedQueriesResponse = Teamcenter.Services.Strong.Query._2007_09.SavedQuery.SavedQueriesResponse;
 using QueryInput           = Teamcenter.Services.Strong.Query._2008_06.SavedQuery.QueryInput;
 
@@ -44,18 +45,9 @@ namespace SymbolDetective.Detect
             "revision_list", "rev_numbering_scheme",
         };
 
-        // Relation property names that may return model objects
-        private static readonly string[] RelationProps = {
-            "IMAN_reference",
-            "IMAN_specification",
-            "IMAN_manifestation",
-            "TC_Attaches",
-            "IMAN_based_on",
-            "IMAN_UG_scenario",
-            "SymbolImageFiles",
-            "SymbolFiles",
+        // Relation property names still used for classification / parent item resolution
+        private static readonly string[] ClassificationProps = {
             "IMAN_classification",
-            "release_status_list",
             "items_tag",
         };
 
@@ -88,9 +80,9 @@ namespace SymbolDetective.Detect
                 Type           = obj.GetType().Name,
             };
 
-            // ── Step 1: Broad GetProperties on the revision ───────────────────────
+            // ── Step 1: GetProperties on the revision (core + classification/parent) ─
             var allPropNames = new List<string>(CoreProps);
-            allPropNames.AddRange(RelationProps);
+            allPropNames.AddRange(ClassificationProps);
 
             Console.WriteLine("[INFO] Loading revision properties...");
             try { _dmService.GetProperties(new[] { obj }, allPropNames.ToArray()); }
@@ -121,53 +113,84 @@ namespace SymbolDetective.Detect
             report.Properties.Sort((a, b) =>
                 string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
 
-            // ── Step 4: Collect relation objects ──────────────────────────────────
-            Console.WriteLine("[INFO] Collecting relations...");
+            // ── Step 4: Expand ALL GRM relations via ExpandGRMRelationsForPrimary ───
+            Console.WriteLine("[INFO] Expanding all GRM relations...");
             var icoObjects = new List<ModelObject>();
 
-            foreach (string rel in RelationProps)
+            try
             {
-                try
+                var pref = new ExpandGRMRelationsPref2
                 {
-                    Property p = obj.GetProperty(rel);
-                    if (p == null) continue;
+                    ExpItemRev      = false,
+                    ReturnRelations = false,
+                    Info            = new Teamcenter.Services.Strong.Core._2007_06.DataManagement.RelationAndTypesFilter[0],
+                };
 
-                    ModelObject[] relObjs = p.ModelObjectArrayValue;
-                    if (relObjs == null || relObjs.Length == 0) continue;
+                ExpandGRMRelationsResponse2 grm = _dmService.ExpandGRMRelationsForPrimary(new[] { obj }, pref);
 
-                    // Load name/type + ref_list on each related object
-                    try { _dmService.GetProperties(relObjs, RelatedObjProps); }
-                    catch { }
-
-                    foreach (ModelObject relObj in relObjs)
+                if (grm?.Output != null)
+                {
+                    foreach (var output in grm.Output)
                     {
-                        if (relObj == null) continue;
-                        var ro = new RelatedObject
+                        if (output?.RelationshipData == null) continue;
+                        foreach (var relData in output.RelationshipData)
                         {
-                            Uid      = relObj.Uid,
-                            Name     = SafeGetString(relObj, "object_string") ?? SafeGetString(relObj, "object_name") ?? "",
-                            Type     = SafeGetString(relObj, "object_type") ?? relObj.GetType().Name,
-                            Relation = rel,
-                        };
-                        foreach (string rp in new[] { "object_name", "object_string", "object_type", "object_desc", "creation_date", "last_mod_date" })
-                        {
-                            string rv = SafeGetString(relObj, rp);
-                            if (rv != null) ro.Properties.Add(new PropValue { Name = rp, Value = rv });
+                            string relName = relData.RelationName ?? "unknown";
+                            if (relData.RelationshipObjects == null) continue;
+
+                            // Collect all secondary objects for this relation
+                            var relObjs = new List<ModelObject>();
+                            foreach (var rel in relData.RelationshipObjects)
+                            {
+                                if (rel?.OtherSideObject != null)
+                                    relObjs.Add(rel.OtherSideObject);
+                            }
+                            if (relObjs.Count == 0) continue;
+
+                            Console.WriteLine($"[INFO] Relation \"{relName}\": {relObjs.Count} object(s)");
+
+                            // Load name/type + ref_list on each related object
+                            try { _dmService.GetProperties(relObjs.ToArray(), RelatedObjProps); }
+                            catch { }
+
+                            foreach (ModelObject relObj in relObjs)
+                            {
+                                if (relObj == null) continue;
+                                var ro = new RelatedObject
+                                {
+                                    Uid      = relObj.Uid,
+                                    Name     = SafeGetString(relObj, "object_string") ?? SafeGetString(relObj, "object_name") ?? "",
+                                    Type     = SafeGetString(relObj, "object_type") ?? relObj.GetType().Name,
+                                    Relation = relName,
+                                };
+                                foreach (string rp in new[] { "object_name", "object_string", "object_type", "object_desc", "creation_date", "last_mod_date" })
+                                {
+                                    string rv = SafeGetString(relObj, rp);
+                                    if (rv != null) ro.Properties.Add(new PropValue { Name = rp, Value = rv });
+                                }
+
+                                ro.Files = DiscoverFiles(relObj);
+                                report.Relations.Add(ro);
+
+                                if (relName == "IMAN_classification")
+                                    icoObjects.Add(relObj);
+                            }
                         }
-
-                        // ── Step 4b: File discovery via ref_list ─────────────────
-                        ro.Files = DiscoverFiles(relObj);
-
-                        report.Relations.Add(ro);
-
-                        if (rel == "IMAN_classification")
-                            icoObjects.Add(relObj);
                     }
                 }
-                catch (Exception e)
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[WARN] ExpandGRMRelationsForPrimary: {e.Message}");
+
+                // Fallback: try IMAN_classification via GetProperties for ICO discovery
+                try
                 {
-                    Console.WriteLine($"[WARN] Relation {rel}: {e.Message}");
+                    Property p = obj.GetProperty("IMAN_classification");
+                    ModelObject[] icos = p?.ModelObjectArrayValue;
+                    if (icos != null) icoObjects.AddRange(icos);
                 }
+                catch { }
             }
 
             // ── Step 5: Parent Item ───────────────────────────────────────────────
