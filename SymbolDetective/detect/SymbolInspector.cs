@@ -51,6 +51,23 @@ namespace SymbolDetective.Detect
             "items_tag",
         };
 
+        // Broad set of relation names to try via GetProperties when ExpandGRM returns nothing
+        private static readonly string[] KnownRelationProps = {
+            "IMAN_specification",
+            "IMAN_reference",
+            "IMAN_manifestation",
+            "TC_Attaches",
+            "IMAN_based_on",
+            "IMAN_UG_scenario",
+            "IMAN_master_form",
+            "IMAN_master_form_rev",
+            "SymbolImageFiles",
+            "SymbolFiles",
+            "PLM4_specification",
+            "PLM4_reference",
+            "release_status_list",
+        };
+
         // Properties to load on each related object (datasets etc.)
         private static readonly string[] RelatedObjProps = {
             "object_name", "object_string", "object_type", "object_desc",
@@ -178,8 +195,12 @@ namespace SymbolDetective.Detect
                 Console.WriteLine($"[WARN] ExpandGRMRelationsForPrimary: {e.Message}");
             }
 
+            // ── Step 4b: GetProperties relation walk on the revision (ExpandGRM fallback) ─
+            Console.WriteLine("[INFO] Walking known relation names via GetProperties on revision...");
+            icoObjects.AddRange(WalkRelationsViaGetProperties(obj, "rev", report));
+
             // Always fall back to GetProperties-based IMAN_classification in case
-            // ExpandGRM returned nothing or didn't include it
+            // neither ExpandGRM nor the walk found it
             if (icoObjects.Count == 0)
             {
                 try
@@ -241,6 +262,10 @@ namespace SymbolDetective.Detect
 
                 report.ParentItem.Properties.Sort((a, b) =>
                     string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
+
+                // Walk all known relations on the parent item too
+                Console.WriteLine("[INFO] Walking known relation names via GetProperties on parent item...");
+                icoObjects.AddRange(WalkRelationsViaGetProperties(parentObj, "item", report));
 
                 // Check IMAN_classification on the parent item — classification is often
                 // applied at Item level rather than ItemRevision level in TC
@@ -702,6 +727,57 @@ namespace SymbolDetective.Detect
         // ────────────────────────────────────────────────────────────────────────
         // Helpers
         // ────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Walks KnownRelationProps via GetProperties on the given object and
+        /// appends any found related objects to report.Relations.
+        /// Returns any IMAN_classification objects found for ICO collection.
+        /// </summary>
+        private List<ModelObject> WalkRelationsViaGetProperties(ModelObject obj, string sourceLabel, SymbolReport report)
+        {
+            var foundIcos = new List<ModelObject>();
+            try { _dmService.GetProperties(new[] { obj }, KnownRelationProps); }
+            catch (Exception e) { Console.WriteLine($"[WARN] GetProperties (relations on {sourceLabel}): {e.Message}"); return foundIcos; }
+
+            foreach (string rel in KnownRelationProps)
+            {
+                try
+                {
+                    Property p = obj.GetProperty(rel);
+                    if (p == null) continue;
+                    ModelObject[] relObjs = p.ModelObjectArrayValue;
+                    if (relObjs == null || relObjs.Length == 0) continue;
+
+                    Console.WriteLine($"[INFO] [{sourceLabel}] Relation \"{rel}\": {relObjs.Length} object(s)");
+
+                    try { _dmService.GetProperties(relObjs, RelatedObjProps); } catch { }
+
+                    foreach (ModelObject relObj in relObjs)
+                    {
+                        if (relObj == null) continue;
+                        var ro = new RelatedObject
+                        {
+                            Uid      = relObj.Uid,
+                            Name     = SafeGetString(relObj, "object_string") ?? SafeGetString(relObj, "object_name") ?? "",
+                            Type     = SafeGetString(relObj, "object_type") ?? relObj.GetType().Name,
+                            Relation = $"{sourceLabel}/{rel}",
+                        };
+                        foreach (string rp in new[] { "object_name", "object_string", "object_type", "object_desc", "creation_date", "last_mod_date" })
+                        {
+                            string rv = SafeGetString(relObj, rp);
+                            if (rv != null) ro.Properties.Add(new PropValue { Name = rp, Value = rv });
+                        }
+                        ro.Files = DiscoverFiles(relObj);
+                        report.Relations.Add(ro);
+
+                        if (rel == "IMAN_classification")
+                            foundIcos.Add(relObj);
+                    }
+                }
+                catch { }
+            }
+            return foundIcos;
+        }
 
         private static string SafeGetString(ModelObject obj, string name)
         {
