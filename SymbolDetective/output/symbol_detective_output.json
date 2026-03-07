@@ -32,453 +32,43 @@
   ],
   "Relations": [
     {
-      "Uid": "PPJAQUQNpuMr7D",
-      "Name": "",
-      "Type": "Icm0",
-      "Relation": "IMAN_classification",
+      "Uid": "$6BAQUQNpuMr7D",
+      "Name": "3Way valve General/A",
+      "Type": "PLM4EquipmentRevisionMaster",
+      "Relation": "rev/IMAN_master_form_rev",
       "Properties": [
-    ],
-    "Files": [
-  ]
-}
-],
-"Classifications": [
+        {
+          "Name": "object_name",
+          "Value": "3Way valve General/A"
+        },
+        {
+          "Name": "object_string",
+          "Value": "3Way valve General/A"
+        },
+        {
+          "Name": "object_type",
+          "Value": "PLM4EquipmentRevisionMaster"
+        }
+      ],
+      "Files": [
+    ]
+  },
+  {
+    "Uid": "PPJAQUQNpuMr7D",
+    "Name": "",
+    "Type": "Icm0",
+    "Relation": "IMAN_classification",
+    "Properties": [
+  ],
+  "Files": [
+]
+},
 {
-  "IcoUid": "PPJAQUQNpuMr7D",
-  "ClassId": "SMR_on_or_off_valve",
-  "Attributes": [
-    {
-      "Name": "-615",
-      "Value": "infodba"
-    },
-    {
-      "Name": "-616",
-      "Value": "20260204092857"
-    },
-    {
-      "Name": "-617",
-      "Value": "dba"
-    },
-    {
-      "Name": "-618",
-      "Value": "infodba"
-    },
-    {
-      "Name": "-619",
-      "Value": "20260210142055"
-    },
-    {
-      "Name": "-571",
-      "Value": "3Way valve General/A"
-    },
-    {
-      "Name": "-572",
-      "Value": "3Way valve General"
-    },
-    {
-      "Name": "-600",
-      "Value": "SMR_on_or_off_valve"
-    },
-    {
-      "Name": "-607",
-      "Value": "on or off valve"
-    },
-    {
-      "Name": "-732",
-      "Value": ""
-    },
-    {
-      "Name": "DISPLAY_NAME",
-      "Value": "3Way valve General"
-    },
-    {
-      "Name": "UNIT",
-      "Value": "metric"
-    },
-    {
-      "Name": "IS_GENERIC_SYMBOL",
-      "Value": "true"
-    },
-    {
-      "Name": "SYMBOL_DEFINITION_FILE",
-      "Value": ""
-    },
-    {
-      "Name": "SYMBOL_PREVIEW_FILE",
-      "Value": ""
-    },
-    {
-      "Name": "CUSTOM_SYMBOL_FILE",
-      "Value": ""
-    },
-    {
-      "Name": "PART_NUMBER",
-      "Value": ""
-    },
-    {
-      "Name": "PART_REVISION",
-      "Value": ""
-    },
-    {
-      "Name": "PART_NAME",
-      "Value": ""
-    },
-    {
-      "Name": "MEMBER_NAME",
-      "Value": ""
-    },
-    {
-      "Name": "SYMBOL_OBJECT_ID",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Structure Code (++)",
-      "Value": ""
-    },
-    {
-      "Name": "cccCCCInfo",
-      "Value": ""
-    },
-    {
-      "Name": "RDSPP Location Code",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Product Code Number",
-      "Value": "0.0"
-    },
-    {
-      "Name": "Name in FBOM",
-      "Value": ""
-    },
-    {
-      "Name": "cccSPVInfo",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP System Code (=)",
-      "Value": ""
-    },
-    {
-      "Name": "cccCCC",
-      "Value": ""
-    },
-    {
-      "Name": "cccPGV",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Island Code (Main System)",
-      "Value": ""
-    },
-    {
-      "Name": "cccSPV",
-      "Value": ""
-    },
-    {
-      "Name": "Part Type",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP System Code Number",
-      "Value": "0.0"
-    },
-    {
-      "Name": "RDS-PP Further Product Code",
-      "Value": ""
-    },
-    {
-      "Name": "P and ID Reference",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Space Number",
-      "Value": "0.0"
-    },
-    {
-      "Name": "cccActivePassive",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Basic Function Code Number",
-      "Value": "0.0"
-    },
-    {
-      "Name": "RDS-PP Basic Function Code",
-      "Value": ""
-    },
-    {
-      "Name": "Sub Type",
-      "Value": ""
-    },
-    {
-      "Name": "System Name",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Operating Equipment Code",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Product Code (-)",
-      "Value": ""
-    },
-    {
-      "Name": "RDS-PP Further Product Code Number",
-      "Value": "0.0"
-    },
-    {
-      "Name": "Security Classifications",
-      "Value": ""
-    },
-    {
-      "Name": "Security Integrity",
-      "Value": ""
-    },
-    {
-      "Name": "Safeguards Classification",
-      "Value": ""
-    },
-    {
-      "Name": "Reliability",
-      "Value": ""
-    },
-    {
-      "Name": "Environmental Classification",
-      "Value": ""
-    },
-    {
-      "Name": "Associated Safety Function",
-      "Value": ""
-    },
-    {
-      "Name": "Fire Resistance",
-      "Value": ""
-    },
-    {
-      "Name": "Safety Classification",
-      "Value": ""
-    },
-    {
-      "Name": "Safety Function Category",
-      "Value": ""
-    },
-    {
-      "Name": "Security Category",
-      "Value": ""
-    },
-    {
-      "Name": "Mass Flow Rate Range",
-      "Value": ""
-    },
-    {
-      "Name": "Inlet Bore (DN)",
-      "Value": "15"
-    },
-    {
-      "Name": "Supplied From Details 1",
-      "Value": ""
-    },
-    {
-      "Name": "ASME QME-1 Qualification Category",
-      "Value": ""
-    },
-    {
-      "Name": "Valve Sealing Direction",
-      "Value": ""
-    },
-    {
-      "Name": "Supplied From",
-      "Value": ""
-    },
-    {
-      "Name": "Nameplate Rating",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Autonomy Time (SBO)",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Duty Operation Mode 1",
-      "Value": ""
-    },
-    {
-      "Name": "Secondary Actuation Method",
-      "Value": ""
-    },
-    {
-      "Name": "Allowable closing time",
-      "Value": "Less than 2"
-    },
-    {
-      "Name": "Design Temperature",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Duty Operation Mode 5A",
-      "Value": ""
-    },
-    {
-      "Name": "Working Fluid",
-      "Value": ""
-    },
-    {
-      "Name": "Load category",
-      "Value": ""
-    },
-    {
-      "Name": "Load Duty Operation Mode 4A",
-      "Value": ""
-    },
-    {
-      "Name": "Allowable opening time",
-      "Value": "Less than 2"
-    },
-    {
-      "Name": "Load Duty Operation Mode 3",
-      "Value": ""
-    },
-    {
-      "Name": "NRC RG 1.26 Code Class",
-      "Value": ""
-    },
-    {
-      "Name": "End of Life (Maximum) Seat Leakage",
-      "Value": ""
-    },
-    {
-      "Name": "Power Factor",
-      "Value": "0.0"
-    },
-    {
-      "Name": "Load Factor",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Supply Voltage Category",
-      "Value": ""
-    },
-    {
-      "Name": "Outlet Pressure (Range)",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Control",
-      "Value": ""
-    },
-    {
-      "Name": "Supplied From Details 3",
-      "Value": ""
-    },
-    {
-      "Name": "Absorbed Power",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Duty Operation Mode 4B",
-      "Value": ""
-    },
-    {
-      "Name": "Inlet Pressure (Range)",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Design Pressure",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Duty Operation Mode 6A",
-      "Value": ""
-    },
-    {
-      "Name": "Supplied From Details 2",
-      "Value": ""
-    },
-    {
-      "Name": "Maximum K factor",
-      "Value": ""
-    },
-    {
-      "Name": "Outlet Bore (DN)",
-      "Value": "15"
-    },
-    {
-      "Name": "Electrical consumer",
-      "Value": ""
-    },
-    {
-      "Name": "Primary Actuation Method",
-      "Value": ""
-    },
-    {
-      "Name": "Essential supply",
-      "Value": ""
-    },
-    {
-      "Name": "Position Indication",
-      "Value": ""
-    },
-    {
-      "Name": "Electrical_consumer",
-      "Value": ""
-    },
-    {
-      "Name": "Autonomy Time (LOOP)",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Type",
-      "Value": ""
-    },
-    {
-      "Name": "Load Duty Operation Mode 6B",
-      "Value": ""
-    },
-    {
-      "Name": "Operating Pressure",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "Load Duty Operation Mode 5B",
-      "Value": ""
-    },
-    {
-      "Name": "Supply Type",
-      "Value": ""
-    },
-    {
-      "Name": "Load Duty Operation Mode 2",
-      "Value": ""
-    },
-    {
-      "Name": "Operating Temperature",
-      "Value": "000000000.000000000"
-    },
-    {
-      "Name": "System Material Spec",
-      "Value": ""
-    },
-    {
-      "Name": "Supply Voltage",
-      "Value": "11000 AC, 3 ph (ph-ph)"
-    }
-  ]
-}
-],
-"ParentItem": {
-"Uid": "$2HAQUQNpuMr7D",
+"Uid": "$2JAQUQNpuMr7D",
 "Name": "3Way valve General",
-"Type": "PLM4Equipment",
+"Type": "PLM4EquipmentMaster",
+"Relation": "item/IMAN_master_form",
 "Properties": [
-  {
-    "Name": "checked_out",
-    "Value": " "
-  },
-  {
-    "Name": "item_id",
-    "Value": "3Way valve General"
-  },
   {
     "Name": "object_name",
     "Value": "3Way valve General"
@@ -489,8 +79,462 @@
   },
   {
     "Name": "object_type",
-    "Value": "PLM4Equipment"
+    "Value": "PLM4EquipmentMaster"
   }
+],
+"Files": [
+]
+}
+],
+"Classifications": [
+{
+"IcoUid": "PPJAQUQNpuMr7D",
+"ClassId": "SMR_on_or_off_valve",
+"Attributes": [
+{
+  "Name": "-615",
+  "Value": "infodba"
+},
+{
+  "Name": "-616",
+  "Value": "20260204092857"
+},
+{
+  "Name": "-617",
+  "Value": "dba"
+},
+{
+  "Name": "-618",
+  "Value": "infodba"
+},
+{
+  "Name": "-619",
+  "Value": "20260210142055"
+},
+{
+  "Name": "-571",
+  "Value": "3Way valve General/A"
+},
+{
+  "Name": "-572",
+  "Value": "3Way valve General"
+},
+{
+  "Name": "-600",
+  "Value": "SMR_on_or_off_valve"
+},
+{
+  "Name": "-607",
+  "Value": "on or off valve"
+},
+{
+  "Name": "-732",
+  "Value": ""
+},
+{
+  "Name": "DISPLAY_NAME",
+  "Value": "3Way valve General"
+},
+{
+  "Name": "UNIT",
+  "Value": "metric"
+},
+{
+  "Name": "IS_GENERIC_SYMBOL",
+  "Value": "true"
+},
+{
+  "Name": "SYMBOL_DEFINITION_FILE",
+  "Value": ""
+},
+{
+  "Name": "SYMBOL_PREVIEW_FILE",
+  "Value": ""
+},
+{
+  "Name": "CUSTOM_SYMBOL_FILE",
+  "Value": ""
+},
+{
+  "Name": "PART_NUMBER",
+  "Value": ""
+},
+{
+  "Name": "PART_REVISION",
+  "Value": ""
+},
+{
+  "Name": "PART_NAME",
+  "Value": ""
+},
+{
+  "Name": "MEMBER_NAME",
+  "Value": ""
+},
+{
+  "Name": "SYMBOL_OBJECT_ID",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Structure Code (++)",
+  "Value": ""
+},
+{
+  "Name": "cccCCCInfo",
+  "Value": ""
+},
+{
+  "Name": "RDSPP Location Code",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Product Code Number",
+  "Value": "0.0"
+},
+{
+  "Name": "Name in FBOM",
+  "Value": ""
+},
+{
+  "Name": "cccSPVInfo",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP System Code (=)",
+  "Value": ""
+},
+{
+  "Name": "cccCCC",
+  "Value": ""
+},
+{
+  "Name": "cccPGV",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Island Code (Main System)",
+  "Value": ""
+},
+{
+  "Name": "cccSPV",
+  "Value": ""
+},
+{
+  "Name": "Part Type",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP System Code Number",
+  "Value": "0.0"
+},
+{
+  "Name": "RDS-PP Further Product Code",
+  "Value": ""
+},
+{
+  "Name": "P and ID Reference",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Space Number",
+  "Value": "0.0"
+},
+{
+  "Name": "cccActivePassive",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Basic Function Code Number",
+  "Value": "0.0"
+},
+{
+  "Name": "RDS-PP Basic Function Code",
+  "Value": ""
+},
+{
+  "Name": "Sub Type",
+  "Value": ""
+},
+{
+  "Name": "System Name",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Operating Equipment Code",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Product Code (-)",
+  "Value": ""
+},
+{
+  "Name": "RDS-PP Further Product Code Number",
+  "Value": "0.0"
+},
+{
+  "Name": "Security Classifications",
+  "Value": ""
+},
+{
+  "Name": "Security Integrity",
+  "Value": ""
+},
+{
+  "Name": "Safeguards Classification",
+  "Value": ""
+},
+{
+  "Name": "Reliability",
+  "Value": ""
+},
+{
+  "Name": "Environmental Classification",
+  "Value": ""
+},
+{
+  "Name": "Associated Safety Function",
+  "Value": ""
+},
+{
+  "Name": "Fire Resistance",
+  "Value": ""
+},
+{
+  "Name": "Safety Classification",
+  "Value": ""
+},
+{
+  "Name": "Safety Function Category",
+  "Value": ""
+},
+{
+  "Name": "Security Category",
+  "Value": ""
+},
+{
+  "Name": "Mass Flow Rate Range",
+  "Value": ""
+},
+{
+  "Name": "Inlet Bore (DN)",
+  "Value": "15"
+},
+{
+  "Name": "Supplied From Details 1",
+  "Value": ""
+},
+{
+  "Name": "ASME QME-1 Qualification Category",
+  "Value": ""
+},
+{
+  "Name": "Valve Sealing Direction",
+  "Value": ""
+},
+{
+  "Name": "Supplied From",
+  "Value": ""
+},
+{
+  "Name": "Nameplate Rating",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Autonomy Time (SBO)",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Duty Operation Mode 1",
+  "Value": ""
+},
+{
+  "Name": "Secondary Actuation Method",
+  "Value": ""
+},
+{
+  "Name": "Allowable closing time",
+  "Value": "Less than 2"
+},
+{
+  "Name": "Design Temperature",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Duty Operation Mode 5A",
+  "Value": ""
+},
+{
+  "Name": "Working Fluid",
+  "Value": ""
+},
+{
+  "Name": "Load category",
+  "Value": ""
+},
+{
+  "Name": "Load Duty Operation Mode 4A",
+  "Value": ""
+},
+{
+  "Name": "Allowable opening time",
+  "Value": "Less than 2"
+},
+{
+  "Name": "Load Duty Operation Mode 3",
+  "Value": ""
+},
+{
+  "Name": "NRC RG 1.26 Code Class",
+  "Value": ""
+},
+{
+  "Name": "End of Life (Maximum) Seat Leakage",
+  "Value": ""
+},
+{
+  "Name": "Power Factor",
+  "Value": "0.0"
+},
+{
+  "Name": "Load Factor",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Supply Voltage Category",
+  "Value": ""
+},
+{
+  "Name": "Outlet Pressure (Range)",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Control",
+  "Value": ""
+},
+{
+  "Name": "Supplied From Details 3",
+  "Value": ""
+},
+{
+  "Name": "Absorbed Power",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Duty Operation Mode 4B",
+  "Value": ""
+},
+{
+  "Name": "Inlet Pressure (Range)",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Design Pressure",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Duty Operation Mode 6A",
+  "Value": ""
+},
+{
+  "Name": "Supplied From Details 2",
+  "Value": ""
+},
+{
+  "Name": "Maximum K factor",
+  "Value": ""
+},
+{
+  "Name": "Outlet Bore (DN)",
+  "Value": "15"
+},
+{
+  "Name": "Electrical consumer",
+  "Value": ""
+},
+{
+  "Name": "Primary Actuation Method",
+  "Value": ""
+},
+{
+  "Name": "Essential supply",
+  "Value": ""
+},
+{
+  "Name": "Position Indication",
+  "Value": ""
+},
+{
+  "Name": "Electrical_consumer",
+  "Value": ""
+},
+{
+  "Name": "Autonomy Time (LOOP)",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Type",
+  "Value": ""
+},
+{
+  "Name": "Load Duty Operation Mode 6B",
+  "Value": ""
+},
+{
+  "Name": "Operating Pressure",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "Load Duty Operation Mode 5B",
+  "Value": ""
+},
+{
+  "Name": "Supply Type",
+  "Value": ""
+},
+{
+  "Name": "Load Duty Operation Mode 2",
+  "Value": ""
+},
+{
+  "Name": "Operating Temperature",
+  "Value": "000000000.000000000"
+},
+{
+  "Name": "System Material Spec",
+  "Value": ""
+},
+{
+  "Name": "Supply Voltage",
+  "Value": "11000 AC, 3 ph (ph-ph)"
+}
+]
+}
+],
+"ParentItem": {
+"Uid": "$2HAQUQNpuMr7D",
+"Name": "3Way valve General",
+"Type": "PLM4Equipment",
+"Properties": [
+{
+"Name": "checked_out",
+"Value": " "
+},
+{
+"Name": "item_id",
+"Value": "3Way valve General"
+},
+{
+"Name": "object_name",
+"Value": "3Way valve General"
+},
+{
+"Name": "object_string",
+"Value": "3Way valve General"
+},
+{
+"Name": "object_type",
+"Value": "PLM4Equipment"
+}
 ]
 }
 }
