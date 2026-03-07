@@ -5,7 +5,7 @@ using System.Reflection;
 
 using Teamcenter.Services.Strong.Classification;
 using Teamcenter.Services.Strong.Core;
-using Teamcenter.Services.Strong.Core._2007_09.DataManagement;
+using Teamcenter.Services.Strong.Core._2007_06.DataManagement;
 using Teamcenter.Services.Strong.Query;
 using Teamcenter.Services.Strong.Query._2006_03.SavedQuery;
 using Teamcenter.Soa.Client;
@@ -119,38 +119,32 @@ namespace SymbolDetective.Detect
 
             try
             {
-                var pref = new ExpandGRMRelationsPref2
+                var pref = new ExpandGRMRelationsPref
                 {
-                    ExpItemRev      = false,
-                    ReturnRelations = false,
-                    Info            = new Teamcenter.Services.Strong.Core._2007_06.DataManagement.RelationAndTypesFilter[0],
+                    ExpItemRev = false,
+                    Info       = new RelationAndTypesFilter2[0],
                 };
 
-                ExpandGRMRelationsResponse2 grm = _dmService.ExpandGRMRelationsForPrimary(new[] { obj }, pref);
+                ExpandGRMRelationsResponse grm = _dmService.ExpandGRMRelationsForPrimary(new[] { obj }, pref);
+
+                Console.WriteLine($"[INFO] ExpandGRM output count: {grm?.Output?.Length ?? -1}");
 
                 if (grm?.Output != null)
                 {
                     foreach (var output in grm.Output)
                     {
-                        if (output?.RelationshipData == null) continue;
-                        foreach (var relData in output.RelationshipData)
+                        Console.WriteLine($"[INFO] ExpandGRM OtherSideObjData count: {output?.OtherSideObjData?.Length ?? -1}");
+                        if (output?.OtherSideObjData == null) continue;
+
+                        foreach (var relData in output.OtherSideObjData)
                         {
                             string relName = relData.RelationName ?? "unknown";
-                            if (relData.RelationshipObjects == null) continue;
+                            ModelObject[] relObjs = relData.OtherSideObjects;
+                            if (relObjs == null || relObjs.Length == 0) continue;
 
-                            // Collect all secondary objects for this relation
-                            var relObjs = new List<ModelObject>();
-                            foreach (var rel in relData.RelationshipObjects)
-                            {
-                                if (rel?.OtherSideObject != null)
-                                    relObjs.Add(rel.OtherSideObject);
-                            }
-                            if (relObjs.Count == 0) continue;
+                            Console.WriteLine($"[INFO] Relation \"{relName}\": {relObjs.Length} object(s)");
 
-                            Console.WriteLine($"[INFO] Relation \"{relName}\": {relObjs.Count} object(s)");
-
-                            // Load name/type + ref_list on each related object
-                            try { _dmService.GetProperties(relObjs.ToArray(), RelatedObjProps); }
+                            try { _dmService.GetProperties(relObjs, RelatedObjProps); }
                             catch { }
 
                             foreach (ModelObject relObj in relObjs)
@@ -182,13 +176,34 @@ namespace SymbolDetective.Detect
             catch (Exception e)
             {
                 Console.WriteLine($"[WARN] ExpandGRMRelationsForPrimary: {e.Message}");
+            }
 
-                // Fallback: try IMAN_classification via GetProperties for ICO discovery
+            // Always fall back to GetProperties-based IMAN_classification in case
+            // ExpandGRM returned nothing or didn't include it
+            if (icoObjects.Count == 0)
+            {
                 try
                 {
                     Property p = obj.GetProperty("IMAN_classification");
                     ModelObject[] icos = p?.ModelObjectArrayValue;
-                    if (icos != null) icoObjects.AddRange(icos);
+                    if (icos != null && icos.Length > 0)
+                    {
+                        Console.WriteLine($"[INFO] IMAN_classification fallback: {icos.Length} ICO(s) via GetProperties.");
+                        icoObjects.AddRange(icos);
+                        // Also add to relations for completeness
+                        foreach (var ico in icos)
+                        {
+                            if (ico == null) continue;
+                            try { _dmService.GetProperties(new[] { ico }, RelatedObjProps); } catch { }
+                            report.Relations.Add(new RelatedObject
+                            {
+                                Uid      = ico.Uid,
+                                Name     = SafeGetString(ico, "object_string") ?? SafeGetString(ico, "object_name") ?? "",
+                                Type     = SafeGetString(ico, "object_type") ?? ico.GetType().Name,
+                                Relation = "IMAN_classification",
+                            });
+                        }
+                    }
                 }
                 catch { }
             }
