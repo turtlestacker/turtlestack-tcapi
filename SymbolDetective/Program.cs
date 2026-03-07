@@ -28,7 +28,7 @@ namespace SymbolDetective
                 Console.WriteLine("   appID:   SSO application ID");
                 Console.WriteLine("   symbol:  Item ID of the symbol to investigate");
                 Console.WriteLine("   name:    Object name to search for (used when -symbol not given)");
-                Console.WriteLine("            (default: 3Way valve general)");
+                Console.WriteLine("            (default: Control_3Way_dist_mode_General)");
                 Console.WriteLine("   rev:     Revision to search for (default: A)");
                 Console.WriteLine("   out:     Output JSON file path");
                 Console.WriteLine("            (default: output/symbol_detective_output.json)");
@@ -40,7 +40,7 @@ namespace SymbolDetective
             string ssoURL     = Session.GetOptionalArg(arguments, "-sso",    "");
             string appID      = Session.GetOptionalArg(arguments, "-appID",  "");
             string symbolId   = Session.GetOptionalArg(arguments, "-symbol", "");
-            string symbolName = Session.GetOptionalArg(arguments, "-name",   "3Way valve general");
+            string symbolName = Session.GetOptionalArg(arguments, "-name",   "Control_3Way_dist_mode_General");
             string revision   = Session.GetOptionalArg(arguments, "-rev",    "A");
             string outPath    = Session.GetOptionalArg(arguments, "-out",    "output/symbol_detective_output.json");
 
