@@ -88,19 +88,25 @@ namespace SymbolDetective
                     return;
                 }
 
-                Console.WriteLine($"[INFO] Found {foundObjects.Length} object(s). Inspecting the first result.");
+                Console.WriteLine($"[INFO] Found {foundObjects.Length} object(s) — inspecting all.");
 
-                // ── Inspect ──────────────────────────────────────────────────────
+                // ── Inspect all ───────────────────────────────────────────────────
                 sw.Restart();
                 var inspector = new SymbolInspector(Session.getConnection());
-                SymbolReport report = inspector.Inspect(foundObjects[0], searchLabel, revision);
+                var reports   = new List<SymbolReport>();
+                for (int i = 0; i < foundObjects.Length; i++)
+                {
+                    Console.WriteLine($"\n[INFO] ── Result {i + 1}/{foundObjects.Length} ──────────────────────────");
+                    reports.Add(inspector.Inspect(foundObjects[i], searchLabel, revision));
+                }
                 sw.Stop();
                 Console.WriteLine($"[TIMING] Inspect: {sw.Elapsed.TotalSeconds:F2}s");
 
                 // ── Render + export ──────────────────────────────────────────────
                 sw.Restart();
-                new ConsoleRenderer().Render(report);
-                new JsonExporter().Export(report, outPath);
+                var renderer = new ConsoleRenderer();
+                foreach (var report in reports) renderer.Render(report);
+                new JsonExporter().Export(reports, outPath);
                 sw.Stop();
                 Console.WriteLine($"[TIMING] Render + export: {sw.Elapsed.TotalSeconds:F2}s");
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web.Script.Serialization;
@@ -9,7 +10,7 @@ namespace SymbolDetective.Output
 {
     public class JsonExporter
     {
-        public void Export(SymbolReport report, string filePath)
+        public void Export(List<SymbolReport> reports, string filePath)
         {
             try
             {
@@ -24,7 +25,9 @@ namespace SymbolDetective.Output
                     RecursionLimit = 500
                 };
 
-                string raw    = serializer.Serialize(report);
+                // Serialize as array if multiple results, bare object if single
+                object toSerialize = reports.Count == 1 ? (object)reports[0] : reports;
+                string raw    = serializer.Serialize(toSerialize);
                 string pretty = PrettyPrint(raw);
 
                 File.WriteAllText(filePath, pretty, Encoding.UTF8);
